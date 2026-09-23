@@ -5,9 +5,16 @@ generation, NSGA-II optimization, and the LLM explanation layer.
 
 ## Setup
 
+**Requires Python 3.11+** — `pip install -r requirements.txt` will fail
+on older versions (the pinned `numpy==2.4.6` has no wheel for Python
+3.9/3.10). Check with `python3 --version`; if it's older, install 3.11
+(macOS: `brew install python@3.11`, then use `python3.11` below) before
+continuing.
+
 ```bash
-python3 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
