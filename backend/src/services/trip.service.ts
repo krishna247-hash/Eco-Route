@@ -2,7 +2,7 @@ import { ItineraryLabel, TravelPreference } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { getCached, setCached } from "./cache.service";
 import * as aiService from "./aiService.client";
-import type { TravelPreferenceInput } from "./aiService.client";
+import type { AccommodationTierFilter, TransportModeFilter, TravelPreferenceInput } from "./aiService.client";
 
 export interface DestinationInput {
   name: string;
@@ -21,6 +21,8 @@ export interface PlanTripInput {
   budgetUsd?: number;
   preference: TravelPreferenceInput;
   activityHours: number;
+  transportModeFilter?: TransportModeFilter;
+  accommodationTierFilter?: AccommodationTierFilter;
 }
 
 const PREFERENCE_MAP: Record<TravelPreferenceInput, TravelPreference> = {
@@ -76,6 +78,8 @@ export async function planTrip(userId: string, input: PlanTripInput) {
     budget_usd: input.budgetUsd,
     preference: input.preference,
     activity_hours: input.activityHours,
+    transport_mode_filter: input.transportModeFilter,
+    accommodation_tier_filter: input.accommodationTierFilter,
   });
 
   // Pipeline step per the build guide (generate -> optimize -> recommend);

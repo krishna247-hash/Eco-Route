@@ -14,6 +14,8 @@ class TripInput(BaseModel):
     budget_usd: float | None = None
     preference: Literal["eco", "balanced", "budget", "speed"] = "balanced"
     activity_hours: float = Field(default=4.0, ge=0)
+    transport_mode_filter: Literal["car", "train", "bus", "flight"] | None = None
+    accommodation_tier_filter: Literal["budget", "standard", "eco"] | None = None
 
 
 class CandidateItinerary(BaseModel):

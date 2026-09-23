@@ -2,11 +2,17 @@ import { Router } from "express";
 import { authMiddleware, type AuthedRequest } from "../middleware/auth.middleware";
 import { AppError } from "../utils/AppError";
 import { planTrip, type DestinationInput } from "../services/trip.service";
-import type { TravelPreferenceInput } from "../services/aiService.client";
+import type {
+  AccommodationTierFilter,
+  TransportModeFilter,
+  TravelPreferenceInput,
+} from "../services/aiService.client";
 
 export const tripsRouter = Router();
 
 const PREFERENCES: TravelPreferenceInput[] = ["eco", "balanced", "budget", "speed"];
+const TRANSPORT_MODES: TransportModeFilter[] = ["car", "train", "bus", "flight"];
+const ACCOMMODATION_TIERS: AccommodationTierFilter[] = ["budget", "standard", "eco"];
 
 function isDestinationInput(value: unknown): value is DestinationInput {
   if (typeof value !== "object" || value === null) return false;
@@ -22,7 +28,19 @@ function isDestinationInput(value: unknown): value is DestinationInput {
 tripsRouter.post("/plan", authMiddleware, async (req: AuthedRequest, res, next) => {
   try {
     const body = req.body ?? {};
-    const { origin, destination, distanceKm, startDate, endDate, travelers, budgetUsd, preference, activityHours } = body;
+    const {
+      origin,
+      destination,
+      distanceKm,
+      startDate,
+      endDate,
+      travelers,
+      budgetUsd,
+      preference,
+      activityHours,
+      transportModeFilter,
+      accommodationTierFilter,
+    } = body;
 
     if (typeof origin !== "string" || !origin.trim()) {
       throw new AppError(400, "origin is required");
@@ -50,6 +68,12 @@ tripsRouter.post("/plan", authMiddleware, async (req: AuthedRequest, res, next) 
     if (activityHours !== undefined && (typeof activityHours !== "number" || activityHours < 0)) {
       throw new AppError(400, "activityHours must be a non-negative number if provided");
     }
+    if (transportModeFilter !== undefined && !TRANSPORT_MODES.includes(transportModeFilter)) {
+      throw new AppError(400, `transportModeFilter must be one of ${TRANSPORT_MODES.join(", ")}`);
+    }
+    if (accommodationTierFilter !== undefined && !ACCOMMODATION_TIERS.includes(accommodationTierFilter)) {
+      throw new AppError(400, `accommodationTierFilter must be one of ${ACCOMMODATION_TIERS.join(", ")}`);
+    }
 
     const result = await planTrip(req.userId as string, {
       origin,
@@ -61,6 +85,8 @@ tripsRouter.post("/plan", authMiddleware, async (req: AuthedRequest, res, next) 
       budgetUsd,
       preference: preference ?? "balanced",
       activityHours: activityHours ?? 4,
+      transportModeFilter,
+      accommodationTierFilter,
     });
 
     res.status(201).json(result);

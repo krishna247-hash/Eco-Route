@@ -51,9 +51,18 @@ def generate_candidates(trip_input: dict) -> list[dict]:
     activity_hours = trip_input.get("activity_hours", 4.0)
     preference = trip_input.get("preference", "balanced")
 
+    # Optional user filters narrow the candidate set before optimization
+    # runs; they never change how optimizer.py ranks what's left.
+    transport_filter = trip_input.get("transport_mode_filter")
+    accommodation_filter = trip_input.get("accommodation_tier_filter")
+    transport_modes = {transport_filter: TRANSPORT_PROFILES[transport_filter]} if transport_filter else TRANSPORT_PROFILES
+    accommodation_tiers = (
+        {accommodation_filter: ACCOMMODATION_TIERS[accommodation_filter]} if accommodation_filter else ACCOMMODATION_TIERS
+    )
+
     candidates = []
-    for mode, transport_profile in TRANSPORT_PROFILES.items():
-        for tier_key, tier in ACCOMMODATION_TIERS.items():
+    for mode, transport_profile in transport_modes.items():
+        for tier_key, tier in accommodation_tiers.items():
             carbon = calculate_trip_co2e(
                 transport_legs=[{"distance_km": distance_km, "mode": mode, "passengers": travelers}],
                 nights=nights,

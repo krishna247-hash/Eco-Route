@@ -28,6 +28,8 @@ export interface CarbonEstimateRequest {
 }
 
 export type TravelPreferenceInput = "eco" | "balanced" | "budget" | "speed";
+export type TransportModeFilter = "car" | "train" | "bus" | "flight";
+export type AccommodationTierFilter = "budget" | "standard" | "eco";
 
 export interface TripInput {
   origin: string;
@@ -38,6 +40,8 @@ export interface TripInput {
   budget_usd?: number | null;
   preference?: TravelPreferenceInput;
   activity_hours?: number;
+  transport_mode_filter?: TransportModeFilter | null;
+  accommodation_tier_filter?: AccommodationTierFilter | null;
 }
 
 export interface CandidateItinerary {

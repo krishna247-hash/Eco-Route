@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeftRight, Leaf, DollarSign, Clock3, Sparkles } from 'lucide-react';
+import { ArrowLeftRight, Leaf, DollarSign, Clock3, Sparkles, Car, TrainFront, Bus, Plane, Hotel } from 'lucide-react';
 import { ItineraryTimeline } from '@/components/itinerary/ItineraryTimeline';
 import { CarbonDashboard } from '@/components/dashboard/CarbonDashboard';
 import { loadTripResult } from '@/lib/tripStore';
@@ -13,6 +13,13 @@ function nightsBetween(startDate: string, endDate: string): number {
   const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
   return Math.max(Math.round(ms / (1000 * 60 * 60 * 24)), 1);
 }
+
+const TRANSPORT_ICON: Record<string, typeof Car> = {
+  car: Car,
+  train: TrainFront,
+  bus: Bus,
+  flight: Plane,
+};
 
 const STAT_CARDS = [
   { key: 'carbon', label: 'Total carbon', icon: Leaf, accent: 'text-emerald-600' },
@@ -49,6 +56,7 @@ export default function ItineraryPage() {
   const recommended =
     response.itineraries.find((option) => option.label === 'BALANCED') ?? response.itineraries[0];
   const nights = nightsBetween(request.startDate, request.endDate);
+  const TransportIcon = TRANSPORT_ICON[recommended.transportMode] ?? Car;
 
   const statValues: Record<(typeof STAT_CARDS)[number]['key'], string> = {
     carbon: `${recommended.carbon.total_co2e.toFixed(1)} kg`,
@@ -76,6 +84,17 @@ export default function ItineraryPage() {
           <ArrowLeftRight className="h-3.5 w-3.5" />
           Compare all
         </Link>
+      </div>
+
+      <div className="mb-4 flex animate-fade-up flex-wrap gap-2 [animation-delay:60ms]">
+        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium capitalize text-slate-700 shadow-sm">
+          <TransportIcon className="h-3.5 w-3.5 text-emerald-600" />
+          {recommended.transportMode}
+        </span>
+        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium capitalize text-slate-700 shadow-sm">
+          <Hotel className="h-3.5 w-3.5 text-emerald-600" />
+          {recommended.accommodationTier} accommodation
+        </span>
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">

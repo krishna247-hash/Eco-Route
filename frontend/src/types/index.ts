@@ -1,4 +1,6 @@
 export type TravelPreference = 'eco' | 'balanced' | 'budget' | 'speed';
+export type TransportModeFilter = 'car' | 'train' | 'bus' | 'flight';
+export type AccommodationTierFilter = 'budget' | 'standard' | 'eco';
 
 export interface DestinationInput {
   name: string;
@@ -17,6 +19,8 @@ export interface PlanTripRequest {
   budgetUsd?: number;
   preference: TravelPreference;
   activityHours?: number;
+  transportModeFilter?: TransportModeFilter;
+  accommodationTierFilter?: AccommodationTierFilter;
 }
 
 export interface CarbonBreakdown {

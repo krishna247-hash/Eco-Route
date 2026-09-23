@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { MapPin, Route, Globe2, Calendar, Users, Wallet, Loader2 } from 'lucide-react';
-import type { PlanTripRequest, TravelPreference } from '@/types';
+import { MapPin, Route, Globe2, Calendar, Users, Wallet, Loader2, Navigation, Hotel } from 'lucide-react';
+import type {
+  AccommodationTierFilter,
+  PlanTripRequest,
+  TransportModeFilter,
+  TravelPreference,
+} from '@/types';
 
 interface PreferenceFormProps {
   onSubmit: (input: PlanTripRequest) => void;
@@ -14,6 +19,21 @@ const PREFERENCES: { value: TravelPreference; label: string; emoji: string }[] =
   { value: 'balanced', label: 'Balanced', emoji: '⚖️' },
   { value: 'budget', label: 'Budget', emoji: '💰' },
   { value: 'speed', label: 'Speed', emoji: '⚡' },
+];
+
+const TRANSPORT_OPTIONS: { value: TransportModeFilter | ''; label: string }[] = [
+  { value: '', label: 'Any' },
+  { value: 'car', label: 'Car' },
+  { value: 'train', label: 'Train' },
+  { value: 'bus', label: 'Bus' },
+  { value: 'flight', label: 'Flight' },
+];
+
+const ACCOMMODATION_OPTIONS: { value: AccommodationTierFilter | ''; label: string }[] = [
+  { value: '', label: 'Any' },
+  { value: 'budget', label: 'Budget' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'eco', label: 'Eco-certified' },
 ];
 
 const inputClass =
@@ -43,6 +63,8 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
   const [travelers, setTravelers] = useState(1);
   const [budgetUsd, setBudgetUsd] = useState<number | ''>('');
   const [preference, setPreference] = useState<TravelPreference>('balanced');
+  const [transportModeFilter, setTransportModeFilter] = useState<TransportModeFilter | ''>('');
+  const [accommodationTierFilter, setAccommodationTierFilter] = useState<AccommodationTierFilter | ''>('');
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -56,6 +78,8 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       budgetUsd: budgetUsd === '' ? undefined : budgetUsd,
       preference,
       activityHours: 4,
+      transportModeFilter: transportModeFilter || undefined,
+      accommodationTierFilter: accommodationTierFilter || undefined,
     });
   }
 
@@ -167,6 +191,35 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
             className={inputClass}
             placeholder="No limit"
           />
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Transportation preference" icon={<Navigation className="h-3.5 w-3.5" />}>
+          <select
+            value={transportModeFilter}
+            onChange={(e) => setTransportModeFilter(e.target.value as TransportModeFilter | '')}
+            className={inputClass}
+          >
+            {TRANSPORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Accommodation preference" icon={<Hotel className="h-3.5 w-3.5" />}>
+          <select
+            value={accommodationTierFilter}
+            onChange={(e) => setAccommodationTierFilter(e.target.value as AccommodationTierFilter | '')}
+            className={inputClass}
+          >
+            {ACCOMMODATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
 
