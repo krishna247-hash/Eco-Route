@@ -137,6 +137,7 @@ export default function ItineraryPage() {
           Hotels near {request.destination.name}
         </h2>
         <HotelList
+          tripId={response.tripId}
           destinationName={request.destination.name}
           destinationCountry={request.destination.country}
           checkIn={request.startDate}

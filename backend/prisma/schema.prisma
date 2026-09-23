@@ -30,6 +30,11 @@ enum EmissionCategory {
   ACTIVITY
 }
 
+enum BookingStatus {
+  SAVED
+  CANCELLED
+}
+
 // ── Core domain models ────────────────────────────────────────────────
 
 model User {
@@ -74,6 +79,7 @@ model Trip {
   updatedAt     DateTime         @updatedAt
 
   itineraries Itinerary[]
+  bookings    Booking[]
 
   @@index([userId])
   @@map("trips")
@@ -171,4 +177,32 @@ model Recommendation {
 
   @@index([itineraryId])
   @@map("recommendations")
+}
+
+/// A hotel selection saved against a trip. No real hotel provider is
+/// connected (Phase 4), so hotelId/hotelName/pricing here describe a
+/// demo listing, not a live hotel -- isDemoData makes that explicit in
+/// every row rather than leaving it implicit. This is still a real
+/// record in our own system: a genuine save/cancel action, just not a
+/// live reservation with an actual hotel. Payment (a later phase) will
+/// attach to these rows rather than replace them.
+model Booking {
+  id               String        @id @default(cuid())
+  tripId           String
+  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  hotelId          String
+  hotelName        String
+  tier             String // budget | standard | eco
+  checkIn          DateTime
+  checkOut         DateTime
+  guests           Int
+  pricePerNightUsd Float
+  totalPriceUsd    Float
+  isDemoData       Boolean       @default(true)
+  status           BookingStatus @default(SAVED)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([tripId])
+  @@map("bookings")
 }
