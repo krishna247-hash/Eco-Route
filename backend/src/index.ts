@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { authRouter } from "./routes/auth.routes";
+import { tripsRouter } from "./routes/trips.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 import { prisma } from "./utils/prisma";
 
@@ -20,6 +21,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/trips", tripsRouter);
 
 app.use(errorMiddleware);
 
