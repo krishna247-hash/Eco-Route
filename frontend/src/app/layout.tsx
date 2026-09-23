@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
-import { Leaf, Compass, Sparkles } from 'lucide-react';
+import { Leaf, Compass, Map, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'EcoRoute | AI-Driven Sustainable Travel Planning',
@@ -42,6 +42,13 @@ export default function RootLayout({
               >
                 <Compass className="w-4 h-4 text-emerald-600" />
                 <span>Trip Planner</span>
+              </Link>
+              <Link
+                href="/map"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
+              >
+                <Map className="w-4 h-4 text-emerald-600" />
+                <span>Explore Map</span>
               </Link>
               <Link
                 href="/plan"

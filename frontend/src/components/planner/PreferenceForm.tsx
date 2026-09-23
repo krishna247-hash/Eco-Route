@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { MapPin, Route, Globe2, Calendar, Users, Wallet, Loader2, Navigation, Hotel } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { MapPin, Route, Calendar, Users, Wallet, Loader2, Navigation, Hotel, Gauge } from 'lucide-react';
+import { LocationAutocomplete } from '@/components/map/LocationAutocomplete';
+import { getRoute, type LocationResult } from '@/lib/locationApi';
 import type {
   AccommodationTierFilter,
   PlanTripRequest,
@@ -52,12 +55,25 @@ function Field({ label, icon, children }: { label: string; icon: ReactNode; chil
 }
 
 export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
-  const [origin, setOrigin] = useState('London');
-  const [destinationName, setDestinationName] = useState('Paris');
-  const [destinationCountry, setDestinationCountry] = useState('France');
-  const [latitude, setLatitude] = useState(48.8566);
-  const [longitude, setLongitude] = useState(2.3522);
-  const [distanceKm, setDistanceKm] = useState(350);
+  // Prefilled synchronously (not via useEffect) from the interactive map
+  // page's "Plan this trip" link, if present, so LocationAutocomplete's
+  // initialValue is correct on its very first render.
+  const searchParams = useSearchParams();
+  const mapToLat = searchParams.get('toLat');
+  const mapToLon = searchParams.get('toLon');
+  const mapDistanceKm = searchParams.get('distanceKm');
+
+  const [origin, setOrigin] = useState(() => searchParams.get('fromName') || 'London');
+  const [originLocation, setOriginLocation] = useState<LocationResult | null>(null);
+  const [destinationName, setDestinationName] = useState(() => searchParams.get('toName') || 'Paris');
+  const [destinationCountry, setDestinationCountry] = useState(() => searchParams.get('toCountry') || 'France');
+  const [latitude, setLatitude] = useState(() => (mapToLat ? Number(mapToLat) : 48.8566));
+  const [longitude, setLongitude] = useState(() => (mapToLon ? Number(mapToLon) : 2.3522));
+  const [distanceKm, setDistanceKm] = useState(() => (mapDistanceKm ? Number(mapDistanceKm) : 350));
+  const [distanceSource, setDistanceSource] = useState<'manual' | 'live-route' | 'straight-line'>(
+    mapDistanceKm ? 'live-route' : 'manual',
+  );
+  const [computingDistance, setComputingDistance] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [travelers, setTravelers] = useState(1);
@@ -65,6 +81,40 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
   const [preference, setPreference] = useState<TravelPreference>('balanced');
   const [transportModeFilter, setTransportModeFilter] = useState<TransportModeFilter | ''>('');
   const [accommodationTierFilter, setAccommodationTierFilter] = useState<AccommodationTierFilter | ''>('');
+
+  // Auto-compute distance from real routing once both ends have coordinates,
+  // without overriding a value the user typed in manually themselves.
+  async function recomputeDistance(nextOrigin: LocationResult | null, nextDestLat: number, nextDestLon: number) {
+    if (!nextOrigin) return;
+    setComputingDistance(true);
+    try {
+      const result = await getRoute(
+        { latitude: nextOrigin.latitude, longitude: nextOrigin.longitude },
+        { latitude: nextDestLat, longitude: nextDestLon },
+      );
+      setDistanceKm(Math.round(result.routes[0].distanceKm));
+      setDistanceSource(result.ok ? 'live-route' : 'straight-line');
+    } catch {
+      // Routing provider unreachable -- leave the existing distance value as-is
+      // rather than fabricating a number; the field stays manually editable.
+    } finally {
+      setComputingDistance(false);
+    }
+  }
+
+  function handleSelectOrigin(location: LocationResult) {
+    setOrigin(location.name);
+    setOriginLocation(location);
+    void recomputeDistance(location, latitude, longitude);
+  }
+
+  function handleSelectDestination(location: LocationResult) {
+    setDestinationName(location.name);
+    setDestinationCountry(location.country ?? '');
+    setLatitude(location.latitude);
+    setLongitude(location.longitude);
+    void recomputeDistance(originLocation, location.latitude, location.longitude);
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -87,68 +137,42 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <Field label="Origin" icon={<MapPin className="h-3.5 w-3.5" />}>
-          <input required value={origin} onChange={(e) => setOrigin(e.target.value)} className={inputClass} />
+          <LocationAutocomplete initialValue={origin} placeholder="Search your starting point…" onSelect={handleSelectOrigin} />
         </Field>
-        <Field label="Distance (km)" icon={<Route className="h-3.5 w-3.5" />}>
+        <Field label="Destination" icon={<MapPin className="h-3.5 w-3.5" />}>
+          <LocationAutocomplete
+            initialValue={destinationName}
+            placeholder="Search a destination…"
+            onSelect={handleSelectDestination}
+          />
+        </Field>
+      </div>
+
+      <Field label="Distance (km)" icon={<Route className="h-3.5 w-3.5" />}>
+        <div className="relative">
           <input
             required
             type="number"
             min={1}
             value={distanceKm}
-            onChange={(e) => setDistanceKm(Number(e.target.value))}
+            onChange={(e) => {
+              setDistanceKm(Number(e.target.value));
+              setDistanceSource('manual');
+            }}
             className={inputClass}
           />
-        </Field>
-      </div>
-
-      <fieldset className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
-        <legend className="flex items-center gap-1.5 px-1 text-sm font-medium text-slate-700">
-          <Globe2 className="h-3.5 w-3.5 text-slate-400" />
-          Destination
-        </legend>
-        <div className="grid grid-cols-2 gap-4">
-          <label className="block text-sm text-slate-600">
-            City
-            <input
-              required
-              value={destinationName}
-              onChange={(e) => setDestinationName(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label className="block text-sm text-slate-600">
-            Country
-            <input
-              required
-              value={destinationCountry}
-              onChange={(e) => setDestinationCountry(e.target.value)}
-              className={inputClass}
-            />
-          </label>
-          <label className="block text-sm text-slate-600">
-            Latitude
-            <input
-              required
-              type="number"
-              step="any"
-              value={latitude}
-              onChange={(e) => setLatitude(Number(e.target.value))}
-              className={inputClass}
-            />
-          </label>
-          <label className="block text-sm text-slate-600">
-            Longitude
-            <input
-              required
-              type="number"
-              step="any"
-              value={longitude}
-              onChange={(e) => setLongitude(Number(e.target.value))}
-              className={inputClass}
-            />
-          </label>
+          {computingDistance && (
+            <Loader2 className="absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-emerald-500" />
+          )}
         </div>
-      </fieldset>
+        <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
+          <Gauge className="h-3 w-3" />
+          {distanceSource === 'live-route' && 'Computed from a live route between your two points.'}
+          {distanceSource === 'straight-line' &&
+            'Live routing was unavailable — this is a straight-line estimate. Edit it manually if you know the real travel distance.'}
+          {distanceSource === 'manual' && 'Select an origin and destination above to auto-fill this, or enter it directly.'}
+        </p>
+      </Field>
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Start date" icon={<Calendar className="h-3.5 w-3.5" />}>

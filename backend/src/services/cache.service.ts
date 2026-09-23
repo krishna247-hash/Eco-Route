@@ -22,3 +22,12 @@ export async function setCached(key: string, value: unknown, ttlSeconds = 3600):
   await ensureConnected();
   await client.set(key, JSON.stringify(value), { EX: ttlSeconds });
 }
+
+/** Closes the Redis connection. The long-lived server process never needs
+ * this (the OS reclaims the socket on exit); it exists so short-lived
+ * scripts and test runs can let the event loop drain and exit cleanly. */
+export async function closeCache(): Promise<void> {
+  if (client.isOpen) {
+    await client.quit();
+  }
+}

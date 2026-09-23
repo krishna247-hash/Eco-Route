@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PreferenceForm } from '@/components/planner/PreferenceForm';
 import { planTrip } from '@/lib/api-client';
@@ -8,7 +8,7 @@ import { saveTripResult } from '@/lib/tripStore';
 import type { PlanTripRequest } from '@/types';
 import { Compass, AlertCircle } from 'lucide-react';
 
-export default function PlanPage() {
+function PlanPageInner() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -49,5 +49,13 @@ export default function PlanPage() {
         <PreferenceForm onSubmit={handleSubmit} submitting={submitting} />
       </div>
     </main>
+  );
+}
+
+export default function PlanPage() {
+  return (
+    <Suspense fallback={null}>
+      <PlanPageInner />
+    </Suspense>
   );
 }
