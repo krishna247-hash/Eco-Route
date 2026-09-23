@@ -67,7 +67,11 @@ docker compose up -d   # starts postgres:16 on :5432 and redis:7 on :6379
 ```
 
 No Docker? On macOS: `brew install postgresql@16 redis && brew services start postgresql@16 && brew services start redis`, then create the database/role once:
-`createuser ecoroute -P` (password `ecoroute`) and `createdb ecoroute -O ecoroute`.
+`createuser ecoroute -P --createdb` (password `ecoroute`) and `createdb ecoroute -O ecoroute`.
+(`--createdb` matters: Prisma's migration tool needs to create a
+temporary shadow database, which fails with `permission denied to
+create database` otherwise. If you already created the role without
+it, fix it with `psql postgres -c "ALTER ROLE ecoroute CREATEDB;"`.)
 
 Then, in three terminals (each starting from the repo root):
 

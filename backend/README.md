@@ -12,6 +12,13 @@ npm run prisma:migrate # applies migrations
 npm run prisma:seed    # seeds 5 emission factors
 ```
 
+If you're using a locally-installed Postgres instead of Docker and see
+`P3014` / `permission denied to create database` from `prisma:migrate`,
+the DB role needs `CREATEDB` (Prisma creates a temporary shadow database
+to diff against): `psql postgres -c "ALTER ROLE ecoroute CREATEDB;"`.
+The Docker Postgres image doesn't need this — `POSTGRES_USER` is created
+as a superuser automatically.
+
 ## Prisma models
 
 `User`, `Trip`, `Itinerary`, `TransportOption`, `Accommodation`, `Activity`,
