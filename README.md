@@ -69,8 +69,8 @@ docker compose up -d   # starts postgres:16 on :5432 and redis:7 on :6379
 This project is being built in phases (see the original build guide). Status:
 
 - [x] Phase 1 — Repo & tooling
-- [ ] Phase 2 — Database schema
-- [ ] Phase 3 — Backend skeleton
+- [x] Phase 2 — Database schema
+- [x] Phase 3 — Backend skeleton
 - [ ] Phase 4 — Carbon calculation engine
 - [ ] Phase 5 — FastAPI service
 - [ ] Phase 6 — Optimization engine

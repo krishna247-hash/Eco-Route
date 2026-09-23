@@ -32,4 +32,25 @@ train, bus, flight, hotel-night).
 | `npm run prisma:seed` | Run `prisma/seed.ts` |
 | `npm run prisma:studio` | Open Prisma Studio |
 
-Server code (Express app, routes, auth) is added in Phase 3.
+## Running the server
+
+```bash
+npm run dev     # ts-node + nodemon, watches src/
+# or
+npm run build && npm start
+```
+
+`JWT_SECRET` must be set (see `.env.example`) — the server refuses to start
+without it.
+
+## Endpoints (Phase 3)
+
+| Method | Path | Description |
+| --- | --- | --- |
+| GET | `/health` | Returns `{ "status": "ok" }` |
+| POST | `/api/v1/auth/signup` | `{ email, password, name? }` → `{ token, user }` |
+| POST | `/api/v1/auth/login` | `{ email, password }` → `{ token, user }` |
+
+Passwords are hashed with bcrypt (12 rounds); tokens are JWTs signed with
+`JWT_SECRET`, expiring after 7 days. Trip/itinerary routes are added in
+Phase 8.
