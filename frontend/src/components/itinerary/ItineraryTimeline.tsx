@@ -1,3 +1,4 @@
+import { CalendarDays } from 'lucide-react';
 import type { ItineraryOption } from '@/types';
 
 interface ItineraryTimelineProps {
@@ -24,15 +25,22 @@ export function ItineraryTimeline({ option, origin, destinationName, nights }: I
   ];
 
   return (
-    <div className="rounded-lg border border-slate-200 p-4">
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">Day-by-day plan</h2>
+    <div className="card-hover glass-card h-full rounded-xl p-5">
+      <h2 className="mb-4 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
+        <CalendarDays className="h-4 w-4 text-emerald-600" />
+        Day-by-day plan
+      </h2>
       <ol className="space-y-3">
-        {days.map((d) => (
-          <li key={d.day} className="flex gap-3 text-sm">
-            <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800">
+        {days.map((d, i) => (
+          <li
+            key={d.day}
+            className="flex animate-fade-up gap-3 text-sm"
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
+            <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-xs font-semibold text-white shadow-sm">
               {d.day}
             </span>
-            <span className="text-slate-700">{d.description}</span>
+            <span className="pt-0.5 text-slate-700">{d.description}</span>
           </li>
         ))}
       </ol>

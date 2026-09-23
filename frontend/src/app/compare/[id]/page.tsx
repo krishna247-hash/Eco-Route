@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { ComparisonTable } from '@/components/itinerary/ComparisonTable';
 import { loadTripResult } from '@/lib/tripStore';
 import type { StoredTripResult } from '@/types';
@@ -21,11 +22,11 @@ export default function ComparePage() {
 
   if (trip === null) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-16 text-center">
+      <main className="mx-auto max-w-2xl animate-fade-in px-4 py-16 text-center">
         <p className="text-slate-600">
           We couldn&apos;t find this trip. Trip results are only kept for the current browser session.
         </p>
-        <Link href="/plan" className="mt-4 inline-block text-emerald-700 underline">
+        <Link href="/plan" className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4">
           Plan a new trip
         </Link>
       </main>
@@ -35,18 +36,25 @@ export default function ComparePage() {
   const { request, response } = trip;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Compare options — {request.origin} → {request.destination.name}
-        </h1>
+    <main className="relative mx-auto max-w-6xl px-4 py-10">
+      <div className="bg-grid pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_60%_40%_at_50%_0%,#000_60%,transparent_100%)]" />
+
+      <div className="mb-8 flex animate-fade-up items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Comparison</p>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {request.origin} <span className="text-slate-400">→</span> {request.destination.name}
+          </h1>
+        </div>
         <Link
           href={`/itinerary/${response.tripId}`}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         >
+          <ArrowLeft className="h-3.5 w-3.5" />
           Back to recommended
         </Link>
       </div>
+
       <ComparisonTable options={response.itineraries} />
     </main>
   );
