@@ -1,21 +1,26 @@
 """Wraps the LLM API call for natural-language explanations only. Carbon,
 cost, and time numbers are computed exclusively by carbon_engine.py and
 optimizer.py — this module never calculates them, only formats them into a
-prompt that forbids the model from inventing or recalculating anything."""
+prompt that forbids the model from inventing or recalculating anything.
+
+Uses Google's Gemini API (free tier via Google AI Studio) rather than a
+paid API — see README.md for how to get a free GEMINI_API_KEY."""
 
 import os
 
-import anthropic
+from google import genai
+from google.genai import errors
+from google.genai.types import FinishReason, GenerateContentConfig
 
-_MODEL = "claude-opus-5"
-_MAX_TOKENS = 400
+_MODEL = "gemini-flash-latest"
+_MAX_OUTPUT_TOKENS = 400
 
 
-def _client() -> anthropic.Anthropic:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+def _client() -> genai.Client:
+    api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY environment variable is required")
-    return anthropic.Anthropic(api_key=api_key)
+        raise RuntimeError("GEMINI_API_KEY environment variable is required")
+    return genai.Client(api_key=api_key)
 
 
 def _build_prompt(itinerary: dict, comparison_baseline: dict) -> str:
@@ -46,16 +51,18 @@ def explain_recommendation(itinerary: dict, comparison_baseline: dict) -> str:
     prompt = _build_prompt(itinerary, comparison_baseline)
 
     try:
-        response = _client().messages.create(
+        response = _client().models.generate_content(
             model=_MODEL,
-            max_tokens=_MAX_TOKENS,
-            output_config={"effort": "low"},
-            messages=[{"role": "user", "content": prompt}],
+            contents=prompt,
+            config=GenerateContentConfig(temperature=0.3, max_output_tokens=_MAX_OUTPUT_TOKENS),
         )
-    except anthropic.APIStatusError as exc:
+    except errors.APIError as exc:
         raise RuntimeError(f"LLM explanation request failed: {exc}") from exc
 
-    if response.stop_reason == "refusal":
-        raise RuntimeError("LLM declined to generate an explanation")
+    candidates = response.candidates or []
+    finish_reason = candidates[0].finish_reason if candidates else None
+    acceptable = (FinishReason.STOP, FinishReason.MAX_TOKENS, None)
+    if finish_reason not in acceptable:
+        raise RuntimeError(f"LLM declined to generate an explanation (finish_reason={finish_reason})")
 
-    return next((block.text for block in response.content if block.type == "text"), "").strip()
+    return (response.text or "").strip()

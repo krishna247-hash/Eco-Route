@@ -72,8 +72,9 @@ python -m pytest tests/test_optimizer.py -v
 
 ## LLM recommendation + explanation (Phase 7)
 
-`app/core/llm_client.py` calls the Anthropic API (`ANTHROPIC_API_KEY` from
-`.env`, never hardcoded) to turn already-computed numbers into a 2-3
+`app/core/llm_client.py` calls Google's Gemini API (free tier via
+[Google AI Studio](https://aistudio.google.com/apikey) — `GEMINI_API_KEY`
+from `.env`, never hardcoded) to turn already-computed numbers into a 2-3
 sentence explanation. The prompt passes only carbon/cost/duration figures
 computed by `carbon_engine.py` and `optimizer.py` (plus their deltas
 against a "conventional" baseline — the highest-carbon candidate) and
@@ -90,19 +91,21 @@ curl -X POST http://localhost:8000/v1/recommend \
   -d '{"candidates": [ ...output of /v1/itineraries/generate... ]}'
 ```
 
-**Requires a real `ANTHROPIC_API_KEY` in `ai-service/.env`** to return
-real explanations — this sandbox has none configured, so the endpoint was
-verified two ways instead:
-1. `tests/test_llm_client.py` mocks the Anthropic client and asserts the
-   built prompt contains only the given numbers (never invented ones) and
-   that a refusal (`stop_reason == "refusal"`) raises rather than
-   returning empty text.
+**Requires a real `GEMINI_API_KEY` in `ai-service/.env`** to return real
+explanations — get one free at https://aistudio.google.com/apikey (no
+credit card required). This sandbox has none configured, so the endpoint
+was verified two ways instead:
+1. `tests/test_llm_client.py` mocks the Gemini client and asserts the
+   built prompt contains only the given numbers (never invented ones),
+   that a safety-blocked response (`finish_reason == SAFETY`) raises
+   rather than returning empty text, and that a `MAX_TOKENS` finish is
+   accepted (it's a length cutoff, not a refusal).
 2. A live run against the real API with a dummy key confirmed the full
    pipeline (generate → optimize → build prompt → call LLM → error
    handling) executes correctly end-to-end, failing only at the expected
-   `401 authentication_error` — this also caught and fixed a real bug
-   where the synthesized baseline candidate was missing the `label` field
-   the prompt builder expected.
+   `400 API_KEY_INVALID` — this also caught and fixed a real bug where
+   the synthesized baseline candidate was missing the `label` field the
+   prompt builder expected.
 
 ```bash
 python -m pytest tests/test_llm_client.py -v

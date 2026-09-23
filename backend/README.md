@@ -99,6 +99,6 @@ explained itineraries; Trip/Itinerary/Recommendation rows persisted
 correctly; a second request for the same destination reused the cached
 `Destination` row (confirmed no duplicate row was created); missing
 auth returns 401; invalid body returns 400. Since this sandbox has no
-real `ANTHROPIC_API_KEY`, the ai-service's LLM call was mocked
+real `GEMINI_API_KEY`, the ai-service's LLM call was mocked
 in-process for this end-to-end run — the committed code is unchanged;
 see ai-service's README for the Phase 7 details.

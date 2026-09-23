@@ -40,8 +40,9 @@ Both platforms build from a `Dockerfile` or auto-detect Python via
 `requirements.txt`. Point the service root at `ai-service/`.
 
 - **Start command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-- **Environment variables**: `ANTHROPIC_API_KEY` (required — the
-  `/v1/recommend` endpoint fails without it, per Phase 7)
+- **Environment variables**: `GEMINI_API_KEY` (required — the
+  `/v1/recommend` endpoint fails without it, per Phase 7; free at
+  https://aistudio.google.com/apikey)
 - **Health check path**: none is defined yet; use `/docs` (FastAPI's
   built-in Swagger UI, always 200) as the platform health check target,
   or add a dedicated `/health` route before deploying if the platform
@@ -84,7 +85,7 @@ Point the service root at `backend/`.
 ## Order of operations for a first deploy
 
 1. Provision Postgres + Redis (step 1), note both connection strings.
-2. Deploy ai-service (step 2) with `ANTHROPIC_API_KEY` set; note its URL.
+2. Deploy ai-service (step 2) with `GEMINI_API_KEY` set; note its URL.
 3. Deploy backend (step 3) with `DATABASE_URL`, `REDIS_URL`,
    `AI_SERVICE_URL` (from step 2), and a real `JWT_SECRET`; run
    `prisma migrate deploy` + `prisma db seed` against it.
@@ -109,4 +110,6 @@ not done here.
   Redis, and a mocked LLM call, not by an automated integration test.
 - `next@14.2.35` has known CVEs whose fix requires the Next 16 major
   line — see `frontend/README.md`.
-- No rate limiting, no CORS allowlist, no `ANTHROPIC_API_KEY` cost caps.
+- No rate limiting, no CORS allowlist. Gemini's free tier has its own
+  request-per-minute/day caps (see Google AI Studio) — no app-level cap
+  is enforced here.
