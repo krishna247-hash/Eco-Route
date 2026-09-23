@@ -10,9 +10,11 @@ import os
 
 from google import genai
 from google.genai import errors
-from google.genai.types import FinishReason, GenerateContentConfig
+from google.genai.types import FinishReason, GenerateContentConfig, ThinkingConfig
 
-_MODEL = "gemini-flash-latest"
+# Pinned to a specific model rather than the "-latest" alias: that alias
+# was empirically overloaded (503) during testing while this one wasn't.
+_MODEL = "gemini-3.6-flash"
 _MAX_OUTPUT_TOKENS = 400
 
 
@@ -54,7 +56,14 @@ def explain_recommendation(itinerary: dict, comparison_baseline: dict) -> str:
         response = _client().models.generate_content(
             model=_MODEL,
             contents=prompt,
-            config=GenerateContentConfig(temperature=0.3, max_output_tokens=_MAX_OUTPUT_TOKENS),
+            config=GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=_MAX_OUTPUT_TOKENS,
+                # This model reasons by default, spending part of the output
+                # budget on hidden "thinking" tokens before any visible text.
+                # Not needed to rephrase numbers into 2-3 sentences.
+                thinking_config=ThinkingConfig(thinking_budget=0),
+            ),
         )
     except errors.APIError as exc:
         raise RuntimeError(f"LLM explanation request failed: {exc}") from exc

@@ -93,8 +93,31 @@ curl -X POST http://localhost:8000/v1/recommend \
 
 **Requires a real `GEMINI_API_KEY` in `ai-service/.env`** to return real
 explanations — get one free at https://aistudio.google.com/apikey (no
-credit card required). This sandbox has none configured, so the endpoint
-was verified two ways instead:
+credit card required). `.env` is loaded automatically (`python-dotenv`)
+on startup.
+
+Model: `gemini-3.6-flash`, pinned rather than the `-latest` alias (which
+was empirically overloaded, returning 503, during testing) with
+`thinking_config=ThinkingConfig(thinking_budget=0)` — this model reasons
+by default, which for a "rephrase these numbers into 2-3 sentences" task
+just burns output-token budget on hidden thinking tokens for no benefit.
+
+Verified against the **real** API end-to-end (not just mocked): every
+recommendation in a live `/v1/recommend` response used exactly the
+numbers computed by `carbon_engine.py` and `optimizer.py`, with no
+invented figures. Example (abbreviated):
+
+```json
+{
+  "label": "LOW_CARBON",
+  "carbon": { "total_co2e": 86.5 },
+  "cost_usd": 344.0,
+  "duration_hrs": 6.92,
+  "explanation": "Choosing the low-carbon option allows you to generate just 86.5 kg CO2e in total carbon, which is a reduction of -154.0 kg CO2e compared to the conventional baseline option. You will also save money with a total cost of $344.00, representing a cost difference of -42.00 USD. In exchange for these savings, the trip has a total duration of 6.9 hours, adding a duration difference of +2.4 hours compared to the baseline."
+}
+```
+
+Also verified without a real key (for CI and anyone without one yet):
 1. `tests/test_llm_client.py` mocks the Gemini client and asserts the
    built prompt contains only the given numbers (never invented ones),
    that a safety-blocked response (`finish_reason == SAFETY`) raises
