@@ -120,3 +120,36 @@ export async function cancelBooking(bookingId: string): Promise<void> {
     throw new Error(`Failed to cancel booking (${response.status})`);
   }
 }
+
+export async function isPaymentConfigured(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/payments/status`);
+    if (!response.ok) return false;
+    const data = (await response.json()) as { configured: boolean };
+    return data.configured;
+  } catch {
+    return false;
+  }
+}
+
+export class PaymentNotConfiguredError extends Error {}
+
+export async function createCheckoutSession(input: {
+  bookingId: string;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<{ checkoutUrl: string }> {
+  const response = await authedFetch('/api/v1/payments/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (response.status === 503) {
+    const detail = await response.json().catch(() => ({ error: 'Payment is not available.' }));
+    throw new PaymentNotConfiguredError(detail.error ?? 'Payment is not available.');
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to start checkout (${response.status})`);
+  }
+  return response.json() as Promise<{ checkoutUrl: string }>;
+}

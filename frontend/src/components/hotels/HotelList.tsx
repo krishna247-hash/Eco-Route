@@ -1,9 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Check, Loader2, MapPin, Star, X } from 'lucide-react';
+import { AlertTriangle, Check, CreditCard, Info, Loader2, MapPin, Star, X } from 'lucide-react';
 import { searchHotels, type AccommodationTier, type HotelListing } from '@/lib/hotelApi';
-import { cancelBooking, createBooking, listTripBookings, type Booking } from '@/lib/api-client';
+import {
+  cancelBooking,
+  createBooking,
+  createCheckoutSession,
+  isPaymentConfigured,
+  listTripBookings,
+  PaymentNotConfiguredError,
+  type Booking,
+} from '@/lib/api-client';
 
 interface HotelListProps {
   tripId: string;
@@ -31,6 +39,8 @@ export function HotelList({
   const [bookings, setBookings] = useState<Record<string, Booking>>({});
   const [pendingHotelId, setPendingHotelId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
+  const [paymentConfigured, setPaymentConfigured] = useState(true); // optimistic default; corrected below
 
   useEffect(() => {
     let cancelled = false;
@@ -57,6 +67,10 @@ export function HotelList({
         // Non-fatal: listings still work, just without "already reserved" state.
       });
 
+    isPaymentConfigured().then((configured) => {
+      if (!cancelled) setPaymentConfigured(configured);
+    });
+
     return () => {
       cancelled = true;
     };
@@ -80,6 +94,30 @@ export function HotelList({
       setBookings((prev) => ({ ...prev, [hotel.id]: booking }));
     } catch {
       setActionError('Could not save that reservation. Please try again.');
+    } finally {
+      setPendingHotelId(null);
+    }
+  }
+
+  async function handlePay(hotel: HotelListing) {
+    const booking = bookings[hotel.id];
+    if (!booking) return;
+    setActionError(null);
+    setPaymentNotice(null);
+    setPendingHotelId(hotel.id);
+    try {
+      const { checkoutUrl } = await createCheckoutSession({
+        bookingId: booking.id,
+        successUrl: `${window.location.origin}${window.location.pathname}?payment=success`,
+        cancelUrl: `${window.location.origin}${window.location.pathname}?payment=cancelled`,
+      });
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      if (err instanceof PaymentNotConfiguredError) {
+        setPaymentNotice(err.message);
+      } else {
+        setActionError('Could not start checkout. Please try again.');
+      }
     } finally {
       setPendingHotelId(null);
     }
@@ -134,6 +172,12 @@ export function HotelList({
           {actionError}
         </p>
       )}
+      {paymentNotice && (
+        <p className="mb-3 flex items-start gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-none" />
+          {paymentNotice}
+        </p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         {hotels.map((hotel) => {
           const booking = bookings[hotel.id];
@@ -163,19 +207,31 @@ export function HotelList({
                 <span className="text-xs text-slate-400">/night · ${hotel.totalPriceUsd} total</span>
               </div>
               {booking ? (
-                <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2">
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
-                    <Check className="h-3.5 w-3.5" />
-                    Saved to your trip
-                  </span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                      <Check className="h-3.5 w-3.5" />
+                      Saved to your trip
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCancel(hotel)}
+                      disabled={isPending}
+                      className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-red-600 disabled:opacity-50"
+                    >
+                      {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
+                      Cancel
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => handleCancel(hotel)}
+                    onClick={() => handlePay(hotel)}
                     disabled={isPending}
-                    className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-red-600 disabled:opacity-50"
+                    title={!paymentConfigured ? 'No payment provider is connected yet' : undefined}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
                   >
-                    {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
-                    Cancel
+                    {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
+                    Pay &amp; confirm
                   </button>
                 </div>
               ) : (
