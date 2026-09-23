@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ai-service:
+    name: ai-service (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        working-directory: ai-service
+        run: pip install -r requirements.txt
+      - name: Run pytest
+        working-directory: ai-service
+        run: python -m pytest tests/ -v
+
+  backend:
+    name: backend (typecheck + test)
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "postgresql://ecoroute:ecoroute@localhost:5432/ecoroute?schema=public"
+      JWT_SECRET: "ci-test-secret"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Generate Prisma client
+        working-directory: backend
+        run: npx prisma generate
+      - name: Typecheck
+        working-directory: backend
+        run: npm run build
+      - name: Run tests
+        working-directory: backend
+        run: npm test
+
+  frontend:
+    name: frontend (lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+      - name: Build
+        working-directory: frontend
+        run: npm run build

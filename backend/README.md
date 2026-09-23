@@ -84,6 +84,16 @@ curl -X POST http://localhost:4000/api/v1/trips/plan \
   }'
 ```
 
+## Tests
+
+```bash
+npm test   # Node's built-in test runner + supertest, tests/health.test.ts
+```
+
+Covers `/health`, auth validation (short password / invalid email ->
+400), and the trips/plan auth guard (no token -> 401). No database
+connection is required — none of these paths touch Prisma.
+
 Verified locally with both servers running: 201 with 5 labeled,
 explained itineraries; Trip/Itinerary/Recommendation rows persisted
 correctly; a second request for the same destination reused the cached

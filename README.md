@@ -1,5 +1,7 @@
 # EcoRoute
 
+[![CI](https://github.com/krishna247-hash/Eco-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/krishna247-hash/Eco-Route/actions/workflows/ci.yml)
+
 **EcoRoute** is an AI-driven sustainable travel planning platform. It formulates
 itinerary generation as a multi-objective optimization problem — balancing
 carbon footprint, cost, travel time, and traveler preference — and explains
@@ -57,12 +59,32 @@ see the build log below.
 
 ## Local development
 
-Each app has its own README with setup instructions once it's scaffolded.
-Shared local infrastructure:
+Each app has its own README with setup instructions. Shared local
+infrastructure:
 
 ```bash
 docker compose up -d   # starts postgres:16 on :5432 and redis:7 on :6379
 ```
+
+Then, in three terminals:
+
+```bash
+cd ai-service && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000
+cd backend && npm run dev
+cd frontend && npm run dev
+```
+
+Full end-to-end flow: open `http://localhost:3000`, click **Plan a trip**,
+submit the form, and you land on the itinerary page (carbon dashboard +
+day-by-day outline), with a link to compare all 5 ranked options. See
+[`docs/deployment.md`](./docs/deployment.md) for deploying this stack
+(Vercel + Railway/Render + managed Postgres/Redis).
+
+## CI
+
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs on every
+push/PR: `pytest` for ai-service, typecheck + tests for backend, lint +
+build for frontend.
 
 ## Build status
 
@@ -77,7 +99,7 @@ This project is being built in phases (see the original build guide). Status:
 - [x] Phase 7 — LLM recommendation layer
 - [x] Phase 8 — Node ↔ FastAPI wiring
 - [x] Phase 9 — Frontend
-- [ ] Phase 10 — Integration, seed data, deploy
+- [x] Phase 10 — Integration, seed data, deploy
 
 ## License
 
