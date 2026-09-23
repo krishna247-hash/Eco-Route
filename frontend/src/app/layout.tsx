@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
-import { Leaf, Compass, BarChart3, Info, Sparkles, Ticket } from 'lucide-react';
+import { Leaf, Compass, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'EcoRoute | AI-Driven Sustainable Travel Planning',
@@ -37,28 +37,14 @@ export default function RootLayout({
 
             <nav className="flex items-center gap-1 sm:gap-2">
               <Link
-                href="/planner"
+                href="/plan"
                 className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
               >
                 <Compass className="w-4 h-4 text-emerald-600" />
                 <span>Trip Planner</span>
               </Link>
               <Link
-                href="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
-              >
-                <BarChart3 className="w-4 h-4 text-teal-600" />
-                <span>Carbon Analytics</span>
-              </Link>
-              <Link
-                href="/travel-pass"
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
-              >
-                <Ticket className="w-4 h-4 text-emerald-600" />
-                <span>Digital Pass</span>
-              </Link>
-              <Link
-                href="/planner"
+                href="/plan"
                 className="hidden md:flex items-center gap-1.5 ml-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-600/20 transition-all hover:shadow-md"
               >
                 <Sparkles className="w-3.5 h-3.5" />

@@ -76,7 +76,7 @@ This project is being built in phases (see the original build guide). Status:
 - [x] Phase 6 — Optimization engine
 - [x] Phase 7 — LLM recommendation layer
 - [x] Phase 8 — Node ↔ FastAPI wiring
-- [ ] Phase 9 — Frontend
+- [x] Phase 9 — Frontend
 - [ ] Phase 10 — Integration, seed data, deploy
 
 ## License
