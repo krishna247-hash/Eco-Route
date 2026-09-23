@@ -70,4 +70,42 @@ curl -X POST http://localhost:8000/v1/optimize \
 python -m pytest tests/test_optimizer.py -v
 ```
 
-The LLM explanation layer is added in Phase 7.
+## LLM recommendation + explanation (Phase 7)
+
+`app/core/llm_client.py` calls the Anthropic API (`ANTHROPIC_API_KEY` from
+`.env`, never hardcoded) to turn already-computed numbers into a 2-3
+sentence explanation. The prompt passes only carbon/cost/duration figures
+computed by `carbon_engine.py` and `optimizer.py` (plus their deltas
+against a "conventional" baseline — the highest-carbon candidate) and
+explicitly instructs the model not to invent, estimate, or recalculate
+any figure.
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/v1/recommend` | Takes `{ candidates: [...] }`, runs `/v1/optimize` internally, and returns `{ baseline_id, recommendations: [...] }` — each of the 5 Pareto options plus its LLM explanation |
+
+```bash
+curl -X POST http://localhost:8000/v1/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"candidates": [ ...output of /v1/itineraries/generate... ]}'
+```
+
+**Requires a real `ANTHROPIC_API_KEY` in `ai-service/.env`** to return
+real explanations — this sandbox has none configured, so the endpoint was
+verified two ways instead:
+1. `tests/test_llm_client.py` mocks the Anthropic client and asserts the
+   built prompt contains only the given numbers (never invented ones) and
+   that a refusal (`stop_reason == "refusal"`) raises rather than
+   returning empty text.
+2. A live run against the real API with a dummy key confirmed the full
+   pipeline (generate → optimize → build prompt → call LLM → error
+   handling) executes correctly end-to-end, failing only at the expected
+   `401 authentication_error` — this also caught and fixed a real bug
+   where the synthesized baseline candidate was missing the `label` field
+   the prompt builder expected.
+
+```bash
+python -m pytest tests/test_llm_client.py -v
+```
+
+Node ↔ FastAPI wiring is added in Phase 8.
