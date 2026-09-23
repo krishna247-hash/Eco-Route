@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────────
+
+enum TravelPreference {
+  ECO
+  BALANCED
+  BUDGET
+  SPEED
+}
+
+enum ItineraryLabel {
+  LOW_CARBON
+  BALANCED
+  LOW_COST
+  TIME_EFFICIENT
+  PREFERENCE_FOCUSED
+}
+
+enum EmissionCategory {
+  TRANSPORT
+  ACCOMMODATION
+  ACTIVITY
+}
+
+// ── Core domain models ────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trips Trip[]
+
+  @@map("users")
+}
+
+model Destination {
+  id        String  @id @default(cuid())
+  name      String
+  country   String
+  latitude  Float
+  longitude Float
+
+  trips Trip[]
+
+  @@unique([name, country])
+  @@map("destinations")
+}
+
+model Trip {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinationId String
+  destination   Destination      @relation(fields: [destinationId], references: [id])
+  origin        String
+  startDate     DateTime
+  endDate       DateTime
+  travelers     Int              @default(1)
+  budgetUsd     Float?
+  preference    TravelPreference @default(BALANCED)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  itineraries Itinerary[]
+
+  @@index([userId])
+  @@map("trips")
+}
+
+model Itinerary {
+  id               String         @id @default(cuid())
+  tripId           String
+  trip             Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  label            ItineraryLabel
+  totalCarbonKgCo2e Float
+  totalCostUsd     Float
+  totalDurationHrs Float
+  preferenceScore  Float
+  createdAt        DateTime       @default(now())
+
+  transportOptions TransportOption[]
+  accommodations   Accommodation[]
+  activities       Activity[]
+  recommendations  Recommendation[]
+
+  @@index([tripId])
+  @@map("itineraries")
+}
+
+model TransportOption {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  sequence     Int       @default(0)
+  mode         String // car | train | bus | flight
+  distanceKm   Float
+  durationHrs  Float
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("transport_options")
+}
+
+model Accommodation {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  name         String
+  category     String // eco-certified | standard | budget | luxury
+  nights       Int
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("accommodations")
+}
+
+model Activity {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  name         String
+  activityType String
+  hours        Float
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("activities")
+}
+
+/// Source-of-truth for emission factors used by the carbon engine.
+/// Mirrors ai-service/app/data/emission_factors.json so the same
+/// factors can be seeded into Postgres for the backend/UI reference
+/// table, while the ai-service reads its own copy for calculations.
+model EmissionFactor {
+  id         String           @id @default(cuid())
+  category   EmissionCategory
+  mode       String // car | train | bus | flight | hotel-night | ...
+  value      Float
+  unit       String // e.g. "kg CO2e/passenger-km", "kg CO2e/room-night"
+  source     String
+  year       Int
+  assumption String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([category, mode])
+  @@map("emission_factors")
+}
+
+model Recommendation {
+  id          String    @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  explanation String
+  createdAt   DateTime  @default(now())
+
+  @@index([itineraryId])
+  @@map("recommendations")
+}

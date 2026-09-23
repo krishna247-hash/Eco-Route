@@ -1,0 +1,29 @@
+{
+  "name": "ecoroute-backend",
+  "version": "1.0.0",
+  "description": "EcoRoute API — Express + Prisma",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "prisma:seed": "prisma db seed",
+    "prisma:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "5.20.0",
+    "dotenv": "16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.0",
+    "prisma": "5.20.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.6.3"
+  }
+}
