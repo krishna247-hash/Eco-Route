@@ -6,7 +6,9 @@ import { useParams } from 'next/navigation';
 import { ArrowLeftRight, Leaf, DollarSign, Clock3, Sparkles, Car, TrainFront, Bus, Plane, Hotel } from 'lucide-react';
 import { ItineraryTimeline } from '@/components/itinerary/ItineraryTimeline';
 import { CarbonDashboard } from '@/components/dashboard/CarbonDashboard';
+import { HotelList } from '@/components/hotels/HotelList';
 import { loadTripResult } from '@/lib/tripStore';
+import type { AccommodationTier } from '@/lib/hotelApi';
 import type { StoredTripResult } from '@/types';
 
 function nightsBetween(startDate: string, endDate: string): number {
@@ -127,6 +129,21 @@ export default function ItineraryPage() {
         <div className="animate-fade-up [animation-delay:280ms]">
           <CarbonDashboard carbon={recommended.carbon} />
         </div>
+      </div>
+
+      <div className="mt-8 animate-fade-up [animation-delay:340ms]">
+        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
+          <Hotel className="h-4 w-4 text-emerald-600" />
+          Hotels near {request.destination.name}
+        </h2>
+        <HotelList
+          destinationName={request.destination.name}
+          destinationCountry={request.destination.country}
+          checkIn={request.startDate}
+          checkOut={request.endDate}
+          guests={request.travelers}
+          tier={recommended.accommodationTier as AccommodationTier}
+        />
       </div>
     </main>
   );

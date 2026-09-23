@@ -26,16 +26,18 @@ export function LocationAutocomplete({
   const [open, setOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const skipNextSearch = useRef(false);
 
-  useEffect(() => {
-    if (skipNextSearch.current) {
-      skipNextSearch.current = false;
-      return;
-    }
+  // Debounced search is triggered directly from the input's onChange
+  // handler below (a real user keystroke), not from a useEffect keyed on
+  // `query` state -- that would also fire on mount for a prefilled
+  // initialValue, and (under React StrictMode's dev-only double-invoke)
+  // could still slip through a "skip the first run" ref guard.
+  function handleQueryChange(next: string) {
+    setQuery(next);
+    setOpen(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    const trimmed = query.trim();
+    const trimmed = next.trim();
     if (trimmed.length < 2) {
       setResults([]);
       setError(null);
@@ -56,11 +58,13 @@ export function LocationAutocomplete({
         setLoading(false);
       }
     }, DEBOUNCE_MS);
+  }
 
+  useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -73,7 +77,7 @@ export function LocationAutocomplete({
   }, []);
 
   function handleSelect(location: LocationResult) {
-    skipNextSearch.current = true;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setQuery(location.displayName);
     setResults([]);
     setOpen(false);
@@ -86,10 +90,7 @@ export function LocationAutocomplete({
         <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
         <input
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
+          onChange={(e) => handleQueryChange(e.target.value)}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white py-2 pl-8 pr-8 text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"

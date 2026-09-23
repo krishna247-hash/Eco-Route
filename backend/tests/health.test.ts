@@ -63,3 +63,77 @@ describe("POST /api/v1/trips/plan", () => {
     assert.equal(response.status, 400);
   });
 });
+
+describe("GET /api/v1/locations/search", () => {
+  it("rejects a missing q with 400", async () => {
+    const response = await request(app).get("/api/v1/locations/search");
+    assert.equal(response.status, 400);
+  });
+});
+
+describe("GET /api/v1/locations/reverse", () => {
+  it("rejects an out-of-range latitude with 400", async () => {
+    const response = await request(app).get("/api/v1/locations/reverse?lat=999&lon=2.35");
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects a non-numeric lat/lon with 400", async () => {
+    const response = await request(app).get("/api/v1/locations/reverse?lat=abc&lon=2.35");
+    assert.equal(response.status, 400);
+  });
+});
+
+describe("POST /api/v1/routing/route", () => {
+  it("rejects a missing destination with 400", async () => {
+    const response = await request(app)
+      .post("/api/v1/routing/route")
+      .send({ origin: { latitude: 48.8566, longitude: 2.3522 } });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects an invalid profile with 400", async () => {
+    const response = await request(app).post("/api/v1/routing/route").send({
+      origin: { latitude: 48.8566, longitude: 2.3522 },
+      destination: { latitude: 51.5074, longitude: -0.1278 },
+      profile: "teleport",
+    });
+    assert.equal(response.status, 400);
+  });
+});
+
+describe("GET /api/v1/hotels/search", () => {
+  const validQuery = {
+    destinationName: "Paris",
+    destinationCountry: "France",
+    checkIn: "2027-01-01",
+    checkOut: "2027-01-04",
+    guests: 2,
+  };
+
+  it("rejects a missing destinationName with 400", async () => {
+    const { destinationName: _omit, ...rest } = validQuery;
+    const response = await request(app).get("/api/v1/hotels/search").query(rest);
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects checkOut before checkIn with 400", async () => {
+    const response = await request(app)
+      .get("/api/v1/hotels/search")
+      .query({ ...validQuery, checkIn: "2027-01-04", checkOut: "2027-01-01" });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects an invalid tier with 400", async () => {
+    const response = await request(app)
+      .get("/api/v1/hotels/search")
+      .query({ ...validQuery, tier: "luxury" });
+    assert.equal(response.status, 400);
+  });
+
+  it("returns clearly-labeled demo listings for a valid query", async () => {
+    const response = await request(app).get("/api/v1/hotels/search").query(validQuery);
+    assert.equal(response.status, 200);
+    assert.equal(response.body.isDemoData, true);
+    assert.ok(response.body.hotels.length > 0);
+  });
+});
