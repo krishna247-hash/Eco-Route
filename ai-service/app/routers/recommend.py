@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.core.llm_client import explain_recommendation
+from app.core.llm_client import explain_recommendations
 from app.core.optimizer import optimize_candidates
 from app.schemas.recommend import RecommendRequest, RecommendResponse
 
@@ -16,8 +16,9 @@ def recommend(payload: RecommendRequest) -> RecommendResponse:
     # eco-optimization is modeled as the highest-carbon candidate.
     baseline = {**max(candidates, key=lambda c: c["carbon"]["total_co2e"]), "label": "CONVENTIONAL_BASELINE"}
 
-    recommendations = [
-        {**option, "explanation": explain_recommendation(option, baseline)} for option in pareto_set
-    ]
+    # One LLM call for every option, not one call per option -- see
+    # llm_client.explain_recommendations for why (free-tier rate limits).
+    explanations = explain_recommendations(pareto_set, baseline)
+    recommendations = [{**option, "explanation": explanations.get(option["label"], "")} for option in pareto_set]
 
     return RecommendResponse(baseline_id=baseline["id"], recommendations=recommendations)

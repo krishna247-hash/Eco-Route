@@ -103,11 +103,25 @@ explanations — get one free at https://aistudio.google.com/apikey (no
 credit card required). `.env` is loaded automatically (`python-dotenv`)
 on startup.
 
-Model: `gemini-3.6-flash`, pinned rather than the `-latest` alias (which
-was empirically overloaded, returning 503, during testing) with
+**One LLM call per `/v1/recommend` request, not five.** All 5 options are
+explained in a single batched call (`explain_recommendations`, JSON
+response mode keyed by strategy label) rather than one call per option —
+Gemini's free tier is rate- and quota-limited per model, and 5 calls per
+trip plan burns through a free-tier daily quota almost immediately (hit
+this for real in testing: `gemini-3.6-flash`'s free tier caps at 20
+requests/*day*, exhausted after light testing). Transient `503`
+"overloaded" errors (Google's shared free-tier capacity) are retried
+twice with a short delay before giving up.
+
+Model: `gemini-3.1-flash-lite` — the `-lite` tier carries a much more
+generous free-tier daily allowance than `gemini-3.6-flash` and worked
+reliably in testing, unlike `gemini-flash-latest` (empirically
+overloaded, 503, during testing) or `gemini-3.5-flash-lite` /
+`gemini-flash-lite-latest` (400 on this account). Uses
 `thinking_config=ThinkingConfig(thinking_budget=0)` — this model reasons
-by default, which for a "rephrase these numbers into 2-3 sentences" task
-just burns output-token budget on hidden thinking tokens for no benefit.
+by default, which for a "rephrase these numbers into a couple of
+sentences" task just burns output-token budget on hidden thinking tokens
+for no benefit.
 
 Verified against the **real** API end-to-end (not just mocked): every
 recommendation in a live `/v1/recommend` response used exactly the
@@ -125,17 +139,13 @@ invented figures. Example (abbreviated):
 ```
 
 Also verified without a real key (for CI and anyone without one yet):
-1. `tests/test_llm_client.py` mocks the Gemini client and asserts the
-   built prompt contains only the given numbers (never invented ones),
-   that a safety-blocked response (`finish_reason == SAFETY`) raises
-   rather than returning empty text, and that a `MAX_TOKENS` finish is
-   accepted (it's a length cutoff, not a refusal).
-2. A live run against the real API with a dummy key confirmed the full
-   pipeline (generate → optimize → build prompt → call LLM → error
-   handling) executes correctly end-to-end, failing only at the expected
-   `400 API_KEY_INVALID` — this also caught and fixed a real bug where
-   the synthesized baseline candidate was missing the `label` field the
-   prompt builder expected.
+`tests/test_llm_client.py` mocks the Gemini client and asserts: the
+built prompt contains only the given numbers (never invented ones) and
+exactly one call is made for any number of options; a safety-blocked
+response (`finish_reason == SAFETY`) raises rather than returning empty
+text; a transient `ServerError` (503) is retried and a subsequent
+success is returned; retries are exhausted (and the error re-raised)
+after 3 total attempts.
 
 ```bash
 python -m pytest tests/test_llm_client.py -v
