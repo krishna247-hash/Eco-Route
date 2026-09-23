@@ -46,4 +46,28 @@ curl -X POST http://localhost:8000/v1/itineraries/generate \
 
 Interactive docs at `http://localhost:8000/docs`.
 
-Optimization (NSGA-II Pareto ranking) is added in Phase 6.
+## Optimization (Phase 6)
+
+`app/core/optimizer.py` runs NSGA-II (via pymoo) over the candidate set's
+precomputed objectives (carbon, cost, duration, −preference_score), then
+re-applies non-dominated sorting to guarantee a true Pareto front, and
+picks 5 representative itineraries labeled `LOW_CARBON`, `BALANCED`,
+`LOW_COST`, `TIME_EFFICIENT`, `PREFERENCE_FOCUSED` (`BALANCED` is the
+front's knee point — closest to the ideal/utopia point in normalized
+objective space).
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/v1/optimize` | Takes `{ candidates: [...] }` (the output of `/v1/itineraries/generate`), returns `{ pareto_set: [...] }` with 5 labeled itineraries |
+
+```bash
+curl -X POST http://localhost:8000/v1/optimize \
+  -H "Content-Type: application/json" \
+  -d '{"candidates": [ ...output of /v1/itineraries/generate... ]}'
+```
+
+```bash
+python -m pytest tests/test_optimizer.py -v
+```
+
+The LLM explanation layer is added in Phase 7.

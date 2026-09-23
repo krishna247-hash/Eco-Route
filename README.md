@@ -73,7 +73,7 @@ This project is being built in phases (see the original build guide). Status:
 - [x] Phase 3 — Backend skeleton
 - [x] Phase 4 — Carbon calculation engine
 - [x] Phase 5 — FastAPI service
-- [ ] Phase 6 — Optimization engine
+- [x] Phase 6 — Optimization engine
 - [ ] Phase 7 — LLM recommendation layer
 - [ ] Phase 8 — Node ↔ FastAPI wiring
 - [ ] Phase 9 — Frontend
