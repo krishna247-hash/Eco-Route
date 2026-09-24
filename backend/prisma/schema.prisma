@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────────
+
+enum TravelPreference {
+  ECO
+  BALANCED
+  BUDGET
+  SPEED
+}
+
+enum ItineraryLabel {
+  LOW_CARBON
+  BALANCED
+  LOW_COST
+  TIME_EFFICIENT
+  PREFERENCE_FOCUSED
+}
+
+enum EmissionCategory {
+  TRANSPORT
+  ACCOMMODATION
+  ACTIVITY
+}
+
+enum BookingStatus {
+  SAVED
+  CANCELLED
+}
+
+// ── Core domain models ────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trips Trip[]
+
+  @@map("users")
+}
+
+model Destination {
+  id        String  @id @default(cuid())
+  name      String
+  country   String
+  latitude  Float
+  longitude Float
+
+  trips Trip[]
+
+  @@unique([name, country])
+  @@map("destinations")
+}
+
+model Trip {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinationId String
+  destination   Destination      @relation(fields: [destinationId], references: [id])
+  origin        String
+  startDate     DateTime
+  endDate       DateTime
+  travelers     Int              @default(1)
+  budgetUsd     Float?
+  preference    TravelPreference @default(BALANCED)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  itineraries Itinerary[]
+  bookings    Booking[]
+
+  @@index([userId])
+  @@map("trips")
+}
+
+model Itinerary {
+  id               String         @id @default(cuid())
+  tripId           String
+  trip             Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  label            ItineraryLabel
+  transportMode    String?
+  accommodationTier String?
+  totalCarbonKgCo2e Float
+  totalCostUsd     Float
+  totalDurationHrs Float
+  preferenceScore  Float
+  // Full per-category breakdowns, stored so a trip can be redisplayed in
+  // full later (e.g. from "My Trips") without re-running optimization --
+  // shaped like CarbonBreakdown / CostBreakdown in the frontend/ai-service.
+  // Nullable because trips created before this field existed won't have it.
+  carbonBreakdown  Json?
+  costBreakdown    Json?
+  createdAt        DateTime       @default(now())
+
+  transportOptions TransportOption[]
+  accommodations   Accommodation[]
+  activities       Activity[]
+  recommendations  Recommendation[]
+
+  @@index([tripId])
+  @@map("itineraries")
+}
+
+model TransportOption {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  sequence     Int       @default(0)
+  mode         String // car | train | bus | flight
+  distanceKm   Float
+  durationHrs  Float
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("transport_options")
+}
+
+model Accommodation {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  name         String
+  category     String // eco-certified | standard | budget | luxury
+  nights       Int
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("accommodations")
+}
+
+model Activity {
+  id           String    @id @default(cuid())
+  itineraryId  String
+  itinerary    Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  name         String
+  activityType String
+  hours        Float
+  costUsd      Float
+  carbonKgCo2e Float
+
+  @@index([itineraryId])
+  @@map("activities")
+}
+
+/// Source-of-truth for emission factors used by the carbon engine.
+/// Mirrors ai-service/app/data/emission_factors.json so the same
+/// factors can be seeded into Postgres for the backend/UI reference
+/// table, while the ai-service reads its own copy for calculations.
+model EmissionFactor {
+  id         String           @id @default(cuid())
+  category   EmissionCategory
+  mode       String // car | train | bus | flight | hotel-night | ...
+  value      Float
+  unit       String // e.g. "kg CO2e/passenger-km", "kg CO2e/room-night"
+  source     String
+  year       Int
+  assumption String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([category, mode])
+  @@map("emission_factors")
+}
+
+model Recommendation {
+  id          String    @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  explanation String
+  createdAt   DateTime  @default(now())
+
+  @@index([itineraryId])
+  @@map("recommendations")
+}
+
+/// A hotel selection saved against a trip. No real hotel provider is
+/// connected (Phase 4), so hotelId/hotelName/pricing here describe a
+/// demo listing, not a live hotel -- isDemoData makes that explicit in
+/// every row rather than leaving it implicit. This is still a real
+/// record in our own system: a genuine save/cancel action, just not a
+/// live reservation with an actual hotel. Payment (a later phase) will
+/// attach to these rows rather than replace them.
+model Booking {
+  id               String        @id @default(cuid())
+  tripId           String
+  trip             Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  hotelId          String
+  hotelName        String
+  tier             String // budget | standard | eco
+  checkIn          DateTime
+  checkOut         DateTime
+  guests           Int
+  pricePerNightUsd Float
+  totalPriceUsd    Float
+  isDemoData       Boolean       @default(true)
+  status           BookingStatus @default(SAVED)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([tripId])
+  @@map("bookings")
+}

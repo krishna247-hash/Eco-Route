@@ -1,0 +1,38 @@
+import { createClient, type RedisClientType } from "redis";
+
+const client: RedisClientType = createClient({ url: process.env.REDIS_URL ?? "redis://localhost:6379" });
+client.on("error", (err) => console.error("Redis error:", err));
+
+let connectPromise: Promise<void> | null = null;
+
+async function ensureConnected(): Promise<void> {
+  if (!client.isOpen) {
+    connectPromise ??= client.connect().then(() => undefined);
+    await connectPromise;
+  }
+}
+
+export async function getCached<T>(key: string): Promise<T | null> {
+  await ensureConnected();
+  const raw = await client.get(key);
+  return raw ? (JSON.parse(raw) as T) : null;
+}
+
+export async function setCached(key: string, value: unknown, ttlSeconds = 3600): Promise<void> {
+  await ensureConnected();
+  await client.set(key, JSON.stringify(value), { EX: ttlSeconds });
+}
+
+export async function deleteCached(key: string): Promise<void> {
+  await ensureConnected();
+  await client.del(key);
+}
+
+/** Closes the Redis connection. The long-lived server process never needs
+ * this (the OS reclaims the socket on exit); it exists so short-lived
+ * scripts and test runs can let the event loop drain and exit cleanly. */
+export async function closeCache(): Promise<void> {
+  if (client.isOpen) {
+    await client.quit();
+  }
+}

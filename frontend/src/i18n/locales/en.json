@@ -1,0 +1,296 @@
+{
+  "nav": {
+    "brandTagline": "Carbon-Aware Itineraries",
+    "tripPlanner": "Plan a Trip",
+    "exploreMap": "Explore Map",
+    "generateItinerary": "Plan a Trip",
+    "destinations": "Destinations",
+    "hotels": "Hotels",
+    "myTrips": "My Trips",
+    "assistant": "Assistant",
+    "about": "About",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "org": "EcoRoute Project",
+    "tagline": "— Multi-Objective Carbon Optimization Framework",
+    "compliance": "Compliant with DEFRA 2023 & ICAO Greenhouse Gas Accounting Standards."
+  },
+  "home": {
+    "badge": "Smarter journeys. Lighter footprints.",
+    "headingBefore": "Discover places ",
+    "headingHighlight": "worth remembering",
+    "headingAfter": "",
+    "subheading": "Plan personalized journeys that balance experiences, time, cost, and sustainability.",
+    "cta": "Plan a trip",
+    "exploreDestinations": "Explore destinations",
+    "searchHeading": "Where do you want to go?",
+    "searchSubheading": "Search a destination to start exploring, or jump straight into planning a trip.",
+    "features": [
+      {
+        "title": "Find the right balance",
+        "description": "Every itinerary is weighed across carbon, cost, time, and what matters most to you — in one pass."
+      },
+      {
+        "title": "Understand your footprint",
+        "description": "Built from published emission-factor data, not guesses — every number is traceable."
+      },
+      {
+        "title": "Why we recommend this",
+        "description": "Each option comes with a short, plain-language reason — no jargon required."
+      }
+    ]
+  },
+  "plan": {
+    "title": "Plan a trip",
+    "subtitle": "We'll generate candidate itineraries and rank them by carbon, cost, time, and your preference.",
+    "defaultError": "Something went wrong while planning your trip."
+  },
+  "planForm": {
+    "originLabel": "Origin",
+    "originPlaceholder": "Search your starting point…",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "Search a destination…",
+    "distanceLabel": "Distance (km)",
+    "distanceHintLive": "Computed from a live route between your two points.",
+    "distanceHintFallback": "Live routing was unavailable — this is a straight-line estimate. Edit it manually if you know the real travel distance.",
+    "distanceHintManual": "Select an origin and destination above to auto-fill this, or enter it directly.",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "travelersLabel": "Travelers",
+    "budgetLabel": "Budget (₹, optional)",
+    "budgetPlaceholder": "No limit",
+    "budgetRateUnavailable": "Unavailable (no live exchange rate)",
+    "transportPrefLabel": "Transportation preference",
+    "transportOptions": {
+      "any": "Any",
+      "car": "Car",
+      "train": "Train",
+      "bus": "Bus",
+      "flight": "Flight"
+    },
+    "accommodationPrefLabel": "Accommodation preference",
+    "accommodationOptions": {
+      "any": "Any",
+      "budget": "Budget",
+      "standard": "Standard",
+      "eco": "Eco-certified"
+    },
+    "sustainabilityLabel": "Sustainability preference",
+    "preferenceOptions": {
+      "eco": "Eco",
+      "balanced": "Balanced",
+      "budget": "Budget",
+      "speed": "Speed"
+    },
+    "submitting": "Optimizing your itinerary…",
+    "submit": "Plan my trip"
+  },
+  "map": {
+    "title": "Explore the map",
+    "subtitle": "Search or click to set a starting point and destination, then see a real routed distance.",
+    "fromLabel": "From",
+    "fromPlaceholder": "Search a starting point…",
+    "toLabel": "To",
+    "toPlaceholder": "Search a destination…",
+    "setAsPrompt": "Set {location} as:",
+    "setAsFrom": "From",
+    "setAsTo": "To",
+    "locating": "Locating…",
+    "clickError": "Could not identify that location right now (the map provider may be unreachable). Try searching by name instead.",
+    "showRoute": "Show route",
+    "routing": "Routing…",
+    "reset": "Reset",
+    "planThisTrip": "Plan this trip",
+    "distance": "Distance",
+    "estimatedTime": "Estimated travel time",
+    "unavailable": "Unavailable",
+    "source": "Source",
+    "liveRouting": "Live routing (OSRM)",
+    "straightLineEstimate": "Straight-line estimate"
+  },
+  "itinerary": {
+    "notFoundMessage": "We couldn't find this trip. Trip results are only kept for the current browser session.",
+    "planNewTrip": "Plan a new trip",
+    "recommended": "Recommended:",
+    "compareAll": "Compare all",
+    "totalCarbon": "Total carbon",
+    "totalCost": "Total cost",
+    "duration": "Duration",
+    "hotelsNear": "Hotels near {destination}",
+    "accommodationSuffix": "{tier} accommodation",
+    "explanationUnavailable": "Plain-language explanation unavailable right now — the numbers above are real and computed, just not narrated."
+  },
+  "itineraryTimeline": {
+    "heading": "Day-by-day plan",
+    "depart": "Depart {origin} for {destination} by {mode}.",
+    "stay": "Stay in {destination} — {tier} accommodation.",
+    "return": "Return to {origin} by {mode}."
+  },
+  "carbonDashboard": {
+    "heading": "Carbon breakdown",
+    "transport": "Transport",
+    "accommodation": "Accommodation",
+    "activities": "Activities",
+    "total": "Total",
+    "emissions": "Emissions"
+  },
+  "costDashboard": {
+    "heading": "Cost breakdown",
+    "transport": "Transport",
+    "accommodation": "Accommodation",
+    "activities": "Activities",
+    "total": "Total",
+    "amount": "Amount"
+  },
+  "currency": {
+    "liveRateUnavailable": "{usd} (live rate unavailable)"
+  },
+  "compare": {
+    "label": "Comparison",
+    "backToRecommended": "Back to recommended",
+    "tableHeaders": {
+      "strategy": "Strategy",
+      "carbon": "Carbon",
+      "cost": "Cost",
+      "duration": "Duration",
+      "match": "Match"
+    }
+  },
+  "labels": {
+    "LOW_CARBON": "Low Carbon",
+    "BALANCED": "Balanced",
+    "LOW_COST": "Low Cost",
+    "TIME_EFFICIENT": "Time Efficient",
+    "PREFERENCE_FOCUSED": "Preference Focused"
+  },
+  "hotels": {
+    "findingPlaces": "Finding places to stay…",
+    "listingsUnavailable": "Hotel listings are temporarily unavailable.",
+    "kmFromCenter": "{distance} km from center",
+    "tierSuffix": "{tier} tier",
+    "perNight": "/night",
+    "total": "total",
+    "savedToTrip": "Saved to your trip",
+    "cancel": "Cancel",
+    "payConfirm": "Pay & confirm",
+    "noPaymentTooltip": "No payment provider is connected yet",
+    "reserveDemo": "Reserve (demo)",
+    "saving": "Saving…",
+    "couldNotSaveReservation": "Could not save that reservation. Please try again.",
+    "couldNotCancelReservation": "Could not cancel that reservation. Please try again.",
+    "couldNotStartCheckout": "Could not start checkout. Please try again.",
+    "viewOnMakeMyTrip": "Live prices & booking on MakeMyTrip"
+  },
+  "chat": {
+    "assistantName": "EcoRoute Assistant",
+    "chattingAbout": "Chatting about {trip}",
+    "introWithTrip": "Ask about sustainable travel, or about this trip — carbon, cost, hotels, anything.",
+    "introGeneral": "Ask about sustainable travel, or anything else on your mind.",
+    "placeholder": "Ask a question…",
+    "thinking": "Thinking…",
+    "unavailable": "The assistant is temporarily unavailable. Please try again in a moment.",
+    "openLabel": "Open EcoRoute assistant",
+    "closeLabel": "Close",
+    "sendLabel": "Send"
+  },
+  "hotelsPage": {
+    "title": "Find a place to stay",
+    "subtitle": "Search hotels near any destination.",
+    "destinationLabel": "Destination",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "search": "Search hotels",
+    "searchPrompt": "Search a destination above to see places to stay."
+  },
+  "hotelDetail": {
+    "notFound": "We couldn't find that hotel — results are only kept for your current search session.",
+    "backToSearch": "Back to hotel search"
+  },
+  "weather": {
+    "heading": "Weather",
+    "clearSky": "Clear sky",
+    "partlyCloudy": "Partly cloudy",
+    "overcast": "Overcast",
+    "fog": "Foggy",
+    "drizzle": "Drizzle",
+    "rain": "Rain",
+    "snow": "Snow",
+    "thunderstorm": "Thunderstorm"
+  },
+  "destinations": {
+    "title": "Where do you want to go?",
+    "subtitle": "A few places to start exploring — or search any destination from the trip planner."
+  },
+  "destinationDetail": {
+    "notFound": "We don't have this destination in our discovery list yet — you can still plan a trip to it from the planner.",
+    "backToDestinations": "Back to destinations",
+    "loading": "Loading…",
+    "readMore": "Read more on Wikipedia",
+    "planTrip": "Plan a trip here",
+    "viewHotels": "View hotels",
+    "famousPlaces": "Famous places",
+    "noAttractions": "We don't have notable places on record for this destination yet.",
+    "kmFromCenter": "{distance} km from center"
+  },
+  "about": {
+    "title": "Travel that weighs what matters",
+    "intro": "EcoRoute plans journeys that balance the experiences you want against the time, cost, and environmental footprint they carry — so the trade-offs are visible, not hidden.",
+    "plan": {
+      "title": "Plan with intention",
+      "description": "Tell us where, when, and what matters most to you — we'll shape a set of real itinerary options around it."
+    },
+    "footprint": {
+      "title": "Understand your footprint",
+      "description": "Every itinerary shows its estimated environmental impact alongside cost and time, so it's part of the decision, not an afterthought."
+    },
+    "assistant": {
+      "title": "A travel companion",
+      "description": "Ask the EcoRoute Assistant to adjust your plan, compare options, or explain a recommendation in plain language."
+    },
+    "honest": {
+      "title": "Never fabricated",
+      "description": "Where live data genuinely exists — routes, locations, hotel identities, exchange rates — we use it. Where it doesn't, we say so plainly instead of guessing."
+    },
+    "methodology": {
+      "title": "How EcoRoute works",
+      "intro": "For the curious: the technical approach behind the recommendations.",
+      "optimization": {
+        "term": "Multi-objective optimization",
+        "definition": "Each itinerary is ranked across carbon, cost, time, and your stated preference at once, rather than optimizing for a single number."
+      },
+      "emissions": {
+        "term": "Real emission factors",
+        "definition": "Carbon estimates are built from published DEFRA 2023 and ICAO emission factors, not guesses — every figure is traceable to its source."
+      },
+      "explanations": {
+        "term": "Plain-language explanations",
+        "definition": "An AI model turns the computed numbers behind each recommendation into a short, readable rationale."
+      }
+    },
+    "cta": "Plan your journey"
+  },
+  "myTrips": {
+    "title": "My trips",
+    "subtitle": "Journeys you've planned with EcoRoute.",
+    "loading": "Loading your trips…",
+    "loadError": "Could not load your trips. Please try again.",
+    "empty": "You haven't planned a trip yet.",
+    "planFirst": "Plan your first trip",
+    "delete": "Delete trip",
+    "confirmDelete": "Delete this trip? This can't be undone.",
+    "deleteError": "Could not delete that trip. Please try again."
+  },
+  "assistantPage": {
+    "title": "Your Travel Assistant",
+    "subtitle": "Ask about a trip, a destination, or sustainable travel in general.",
+    "intro": "Try: \"Find a cheaper hotel\", \"Reduce my trip's emissions\", or \"What's a low-carbon way to travel?\""
+  },
+  "locationAutocomplete": {
+    "defaultPlaceholder": "Search a city, town, or place…",
+    "noMatches": "No matches found.",
+    "searchUnavailable": "Location search is temporarily unavailable. You can still enter details manually below."
+  }
+}

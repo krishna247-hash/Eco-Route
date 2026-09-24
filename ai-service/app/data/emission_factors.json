@@ -1,0 +1,64 @@
+{
+  "transport": {
+    "car": {
+      "value": 0.171,
+      "unit": "kg CO2e/km",
+      "source": "UK DEFRA 2023 GHG Conversion Factors — Average Petrol/Diesel Car (Medium)",
+      "year": 2023,
+      "assumption": "Average UK medium petrol/diesel car; per-vehicle-km, shared across all passengers in the vehicle rather than multiplied per passenger."
+    },
+    "train": {
+      "value": 0.035,
+      "unit": "kg CO2e/passenger-km",
+      "source": "UK DEFRA 2023 GHG Conversion Factors — National Rail (average)",
+      "year": 2023,
+      "assumption": "UK national rail average across the current electrification/diesel traction mix."
+    },
+    "bus": {
+      "value": 0.105,
+      "unit": "kg CO2e/passenger-km",
+      "source": "UK DEFRA 2023 GHG Conversion Factors — Local Bus (not London), average occupancy",
+      "year": 2023,
+      "assumption": "Average local bus occupancy outside London; excludes coach/express services."
+    },
+    "flight": {
+      "value": 0.255,
+      "unit": "kg CO2e/passenger-km",
+      "source": "ICAO Carbon Emissions Calculator Methodology (2023), with DEFRA 1.9x radiative forcing index",
+      "year": 2023,
+      "assumption": "Short/medium-haul economy class average, including non-CO2 high-altitude warming effects."
+    }
+  },
+  "accommodation": {
+    "hotel-night": {
+      "value": 20.0,
+      "unit": "kg CO2e/room-night",
+      "source": "Cornell Hotel Sustainability Benchmarking Index 2023 (global blended average)",
+      "year": 2023,
+      "assumption": "Blended global average across hotel star ratings and climate zones; per occupied room-night."
+    }
+  },
+  "activity": {
+    "default": {
+      "value": 0.5,
+      "unit": "kg CO2e/hour",
+      "source": "EcoRoute internal estimate (see assumption)",
+      "year": 2023,
+      "assumption": "No single authoritative per-hour activity emissions dataset exists; estimated from typical venue/tour energy intensity (heating, cooling, lighting, transport within activity) prorated per visitor-hour."
+    },
+    "outdoor": {
+      "value": 0.2,
+      "unit": "kg CO2e/hour",
+      "source": "EcoRoute internal estimate (see assumption)",
+      "year": 2023,
+      "assumption": "Outdoor, low-infrastructure activities (hiking, walking tours, beaches); mainly incidental transport/amenity energy, no climate control."
+    },
+    "indoor_venue": {
+      "value": 0.9,
+      "unit": "kg CO2e/hour",
+      "source": "EcoRoute internal estimate, calibrated against CIBSE Guide F venue energy-intensity benchmarks",
+      "year": 2023,
+      "assumption": "Indoor venues with HVAC and lighting load (museums, galleries, indoor attractions), prorated per visitor-hour."
+    }
+  }
+}

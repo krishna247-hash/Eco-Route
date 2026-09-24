@@ -1,210 +1,113 @@
-# EcoRoute — AI-Driven Sustainable Travel Planning Platform
+# EcoRoute
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg?style=flat&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/krishna247-hash/Eco-Route/actions/workflows/ci.yml/badge.svg)](https://github.com/krishna247-hash/Eco-Route/actions/workflows/ci.yml)
 
-> **Engineering Design and Innovation (EDI) Group Project**  
-> An AI-powered full-stack sustainable travel planning platform integrating multi-objective carbon optimization, explainable AI, dynamic carbon footprint analytics, and interactive route mapping.
+**EcoRoute** is an AI-driven sustainable travel planning platform. It formulates
+itinerary generation as a multi-objective optimization problem — balancing
+carbon footprint, cost, travel time, and traveler preference — and explains
+its recommendations in plain language.
 
----
+This repository is a monorepo with three applications that are built and run
+independently:
 
-## 🌍 Abstract & Problem Statement
-The rapid growth of the global tourism industry has significantly increased transportation-related carbon emissions. Existing commercial travel aggregators primarily optimize for cost and convenience while offering little to no visibility into the environmental consequences of choices in transportation, accommodation, and daily activities.
+| App | Path | Stack | Role |
+| --- | --- | --- | --- |
+| **frontend** | [`frontend/`](./frontend) | Next.js 14 (App Router) + TypeScript + Tailwind CSS | Trip planner UI, itinerary/carbon dashboard, comparison view |
+| **backend** | [`backend/`](./backend) | Node.js + Express + Prisma | REST API, auth, persistence, orchestrates the ai-service pipeline |
+| **ai-service** | [`ai-service/`](./ai-service) | Python + FastAPI | Carbon calculation engine, candidate generation, NSGA-II Pareto optimization, LLM explanation layer |
 
-**EcoRoute** addresses this challenge by formulating travel itinerary generation as a **Multi-Objective Optimization Problem**, simultaneously balancing:
-1. **Carbon Footprint ($\text{kg CO}_2\text{e}$)**
-2. **Travel Cost ($\$$)**
-3. **Travel Duration ($\text{hours}$)**
-4. **User Preferences & Comfort**
+Supporting infra: **PostgreSQL 16** (primary datastore, via Prisma) and
+**Redis 7** (caching), both run locally via [`docker-compose.yml`](./docker-compose.yml).
 
----
+## Why three apps
 
-## 🛠️ System Architecture
+Keeping the carbon-calculation/optimization code (deterministic, unit-tested
+Python) in its own service, separate from the LLM-driven explanation layer and
+the Node API, keeps the boundary between deterministic logic and AI-generated
+output explicit and auditable — the `ai-service/app/core/` modules never
+import FastAPI or an LLM client, so they can be tested and reasoned about as
+plain functions.
 
-```mermaid
-graph TD
-    User([Traveler / Researcher]) <--> NextUI[Next.js 14 App Router UI]
-    
-    subgraph Frontend [Presentation Layer]
-        Planner[Trip Parameter Wizard]
-        Dashboard[Dynamic Carbon Dashboard & Recharts]
-        Timeline[Day-by-Day Itinerary & Activity Timeline]
-        Map[Leaflet / OpenStreetMap Visualizer]
-        XAI[Explainable AI Rationale Drawer]
-    end
+## Repository layout
 
-    NextUI --> Planner
-    NextUI --> Dashboard
-    NextUI --> Timeline
-    NextUI --> Map
-    NextUI --> XAI
-
-    subgraph Backend [Full-Stack Next.js API Layer]
-        APIOptimize[/api/plan]
-        APICarbon[/api/carbon]
-        
-        CarbonEngine[DEFRA 2023 & ICAO Factor Engine]
-        ParetoEngine[Pareto Optimal Frontier Solver]
-        XAIEngine[Explainable AI Decision Explainer]
-        DataCatalog[Geo, Transit & Certified Eco-Hotels DB]
-    end
-
-    Planner --> APIOptimize
-    APIOptimize --> ParetoEngine
-    APIOptimize --> CarbonEngine
-    APIOptimize --> XAIEngine
-    CarbonEngine --> DataCatalog
-
-    subgraph Companion [Academic Research Microservice]
-        PythonService[Python FastAPI / NSGA-II Genetic Algorithm]
-    end
-
-    ParetoEngine -.->|Academic Companion| PythonService
+```
+ecoroute/
+├── frontend/        # Next.js + TypeScript + Tailwind
+├── backend/          # Node.js + Express + Prisma (Postgres)
+├── ai-service/        # Python + FastAPI (carbon engine, optimizer, LLM explain)
+├── docs/              # Architecture diagrams and design notes
+├── legacy/            # Earlier single-app prototype, kept for reference only
+├── docker-compose.yml # Postgres 16 + Redis 7 for local dev
+└── README.md
 ```
 
----
+`legacy/python-optimizer/` holds a standalone NSGA-II script and FastAPI
+prototype from an earlier iteration of this project; it is not part of the
+running system but is kept as a reference while `ai-service/` is built out.
 
-## 🔬 Mathematical Formulation
+## Pinned versions
 
-### 1. Objective Functions
-Given a candidate itinerary $x \in \mathcal{X}$, the system solves:
-$$\min f(x) = \left[ f_{\text{carbon}}(x),\ f_{\text{cost}}(x),\ f_{\text{time}}(x),\ -f_{\text{preference}}(x) \right]$$
+| Tool | Version used in this repo |
+| --- | --- |
+| Node.js | v22.22.2 |
+| Python | 3.11.15 |
+| Next.js | 14.2.x |
+| FastAPI | 0.115.x (added in Phase 5) |
 
-- **$f_{\text{carbon}}(x)$**: Total greenhouse gas emissions calculated using standardized UK DEFRA (2023) and ICAO reporting factors:
-  $$\text{Emission}_{\text{transit}} = \sum_{l \in \text{Legs}} d_l \times EF_{\text{mode}(l)} \times \text{Pax}$$
-  $$\text{Emission}_{\text{stay}} = N_{\text{nights}} \times EF_{\text{hotel\_tier}}$$
+Pinning these early avoids drift between phases built in different sessions —
+see the build log below.
 
-- **$f_{\text{cost}}(x)$**: Total financial cost of transport, accommodation, and curated activities.
-- **$f_{\text{time}}(x)$**: Cruising time + terminal overheads (e.g. check-in, security, transfers).
-- **$f_{\text{preference}}(x)$**: Weighted alignment with traveler priorities (Eco, Speed, Budget, Balanced).
+## Local development
 
-### 2. Standardized Emission Factors (DEFRA / ICAO)
-| Mode / Asset | Emission Factor | Accounting Standard |
-| :--- | :--- | :--- |
-| **Electric High-Speed Rail** | `0.032 kg CO2e / pkm` | DEFRA 2023 Passenger Transit |
-| **Electric Car (EV)** | `0.042 kg CO2e / km` | European Grid Electricity Average |
-| **Express Coach / Bus** | `0.055 kg CO2e / pkm` | DEFRA 2023 Bus & Coach |
-| **Average Petrol Car (ICE)** | `0.171 kg CO2e / km` | DEFRA 2023 Medium Car |
-| **Domestic Flight** | `0.255 kg CO2e / pkm` | ICAO + 1.9x Radiative Forcing Index |
-| **Eco-Certified Hotel** | `12.0 kg CO2e / room-night` | LEED / Green Key Benchmark |
-| **Standard City Hotel** | `26.5 kg CO2e / room-night` | Global Hotel Decarbonisation Study |
+Each app has its own README with setup instructions. Shared local
+infrastructure:
 
-### 3. Pareto Optimal Frontier & Knee Point
-A candidate $A$ Pareto-dominates candidate $B$ ($A \prec B$) if $A$ is no worse than $B$ across all objectives and strictly superior in at least one. The solver extracts 3 hallmark solutions:
-1. 🌿 **The Eco-Champion**: Absolute minimal carbon ($f_{\text{carbon}}$).
-2. ⚡ **The Speed-Priority**: Minimal travel time ($f_{\text{time}}$).
-3. ⚖️ **EcoRoute Optimal (Balanced)**: The **Knee Point** on the Pareto frontier that maximizes marginal emissions abatement per unit time/cost added (via normalized Euclidean distance to the Utopia point).
-
----
-
-## 🚀 Quick Start Guide
-
-### Prerequisites
-- **Node.js**: v18.0.0 or higher (v20+ recommended)
-- **npm**: v9.0.0 or higher
-- **Python**: 3.9+ (optional, for academic NSGA-II script)
-
-### 1. Running the Next.js Web Application
 ```bash
-# 1. Install dependencies (already completed)
-npm install
-
-# 2. Run local development server
-npm run dev
+docker compose up -d   # starts postgres:16 on :5432 and redis:7 on :6379
 ```
 
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
+No Docker? On macOS: `brew install postgresql@16 redis && brew services start postgresql@16 && brew services start redis`, then create the database/role once:
+`createuser ecoroute -P --createdb` (password `ecoroute`) and `createdb ecoroute -O ecoroute`.
+(`--createdb` matters: Prisma's migration tool needs to create a
+temporary shadow database, which fails with `permission denied to
+create database` otherwise. If you already created the role without
+it, fix it with `psql postgres -c "ALTER ROLE ecoroute CREATEDB;"`.)
 
-### 2. Available Routes
-- `http://localhost:3000/` — Landing page with live carbon abatement interactive calculator & architecture highlights.
-- `http://localhost:3000/planner` — Multi-step trip planner wizard with interactive Pareto candidate selection, dynamic carbon metrics, Leaflet route map, day-by-day itinerary, and Explainable AI cards.
-- `http://localhost:3000/dashboard` — Dynamic Carbon Dashboard with parametric simulation, modal comparisons, and standardized DEFRA factors reference table.
-- `http://localhost:3000/api/plan` — REST API endpoint for multi-objective optimization.
-- `http://localhost:3000/api/carbon` — REST API endpoint for carbon footprint calculations.
+Then, in three terminals (each starting from the repo root):
 
-### 3. Running the Python NSGA-II Genetic Optimizer (Optional Academic Companion)
 ```bash
-# Test the standalone genetic algorithm in terminal
-python3 python-optimizer/nsga2_optimizer.py
-
-# Or launch the FastAPI microservice
-python3 -m pip install -r python-optimizer/requirements.txt
-python3 python-optimizer/main.py
+cd ai-service && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000
+cd backend && npm run dev
+cd frontend && npm run dev
 ```
 
----
+Full end-to-end flow: open `http://localhost:3000`, click **Plan a trip**,
+submit the form, and you land on the itinerary page (carbon dashboard +
+day-by-day outline), with a link to compare all 5 ranked options. See
+[`docs/deployment.md`](./docs/deployment.md) for deploying this stack
+(Vercel + Railway/Render + managed Postgres/Redis).
 
-## 📂 Project Directory Structure
+## CI
 
-```
-├── README.md                      # Comprehensive documentation & research specs
-├── package.json                   # Next.js, React, Leaflet, Recharts, Tailwind
-├── tsconfig.json                  # Strict TypeScript configuration
-├── tailwind.config.ts             # Tailwind CSS theme & eco palettes
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx             # Global Navbar, Footer, and Metadata
-│   │   ├── globals.css            # Tailwind & Leaflet styles
-│   │   ├── page.tsx               # Landing Page + Live Carbon Slider
-│   │   ├── planner/page.tsx       # Trip Planning Wizard & Results Page
-│   │   ├── dashboard/page.tsx     # Dynamic Carbon Analytics Dashboard
-│   │   └── api/
-│   │       ├── plan/route.ts      # Multi-objective optimization API
-│   │       └── carbon/route.ts    # Standalone carbon calculation API
-│   ├── components/
-│   │   ├── planner/TripWizard.tsx # Trip parameters configuration form
-│   │   ├── itinerary/
-│   │   │   ├── PlanComparisonCard.tsx # Pareto candidate selector
-│   │   │   └── DayTimeline.tsx    # Day-by-day activities & transit schedule
-│   │   ├── dashboard/CarbonCharts.tsx # Recharts Bar & Donut visualizers
-│   │   ├── maps/LeafletMap.tsx    # Interactive OpenStreetMap route visualizer
-│   │   └── xai/ExplainabilityCard.tsx # Explainable AI rationale card
-│   └── lib/
-│       ├── types.ts               # Core TypeScript domain models
-│       ├── carbon/
-│       │   ├── factors.ts         # DEFRA 2023 & ICAO factor database
-│       │   └── calculator.ts      # Haversine distance & carbon algorithms
-│       ├── optimizer/
-│       │   └── pareto.ts          # Pareto dominance & Knee-point extraction
-│       ├── ai/
-│       │   └── explain.ts         # Transparent Explainable AI engine
-│       └── data/
-│           └── destinations.ts    # Cities, transit links, eco-hotels & POIs
-└── python-optimizer/              # Companion research microservice
-    ├── nsga2_optimizer.py         # NSGA-II Genetic Algorithm
-    ├── main.py                    # FastAPI server
-    └── requirements.txt
-```
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs on every
+push/PR: `pytest` for ai-service, typecheck + tests for backend, lint +
+build for frontend.
 
----
+## Build status
 
-## 💡 Key Features Implemented
+This project is being built in phases (see the original build guide). Status:
 
-1. **Intelligent Itinerary Generator**:
-   - Customizable origin, destination, trip dates, traveler count, and budget.
-   - Dynamic scheduling of certified eco-hotels and low-impact cultural/outdoor attractions.
-2. **Multi-Objective Pareto Engine**:
-   - Extracts non-dominated candidate routes across emissions, cost, and time.
-   - Provides 3 comparative choices: **🌿 The Eco-Champion**, **⚖️ EcoRoute Optimal**, and **⚡ Speed-Priority**.
-3. **Dynamic Carbon Dashboard**:
-   - Visual breakdown of emissions (Transport vs Accommodation vs Activities).
-   - Comparison against conventional unoptimized baseline (Aviation + 4-Star Hotel).
-   - Conversion to **Annual Tree Sequestration Equivalents** (21.77 kg $\text{CO}_2$/year per mature tree).
-4. **Interactive Route Mapping**:
-   - Clean OpenStreetMap CartoDB rendering with Leaflet.
-   - Dynamic route polyline styling based on mode (solid emerald for train, dashed rose for flight, cyan for EV).
-   - Interactive popups for origins, destinations, and scheduled attractions.
-5. **Explainable AI (XAI)**:
-   - Transparent natural-language justifications.
-   - Quantified carbon and time trade-offs for each candidate leg.
-   - Behavioral eco-nudges (packing light, public bike shares, zero single-use plastic).
+- [x] Phase 1 — Repo & tooling
+- [x] Phase 2 — Database schema
+- [x] Phase 3 — Backend skeleton
+- [x] Phase 4 — Carbon calculation engine
+- [x] Phase 5 — FastAPI service
+- [x] Phase 6 — Optimization engine
+- [x] Phase 7 — LLM recommendation layer
+- [x] Phase 8 — Node ↔ FastAPI wiring
+- [x] Phase 9 — Frontend
+- [x] Phase 10 — Integration, seed data, deploy
 
----
+## License
 
-## 📜 Authors & Acknowledgments
-Developed as an **Engineering Design and Innovation (EDI)** project. Designed to advance sustainable computing and green tourism through applied AI and multi-objective evolutionary computation.
+MIT
