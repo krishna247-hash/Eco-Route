@@ -119,7 +119,8 @@
     "totalCost": "कुल लागत",
     "duration": "अवधि",
     "hotelsNear": "{destination} के पास होटल",
-    "accommodationSuffix": "{tier} आवास"
+    "accommodationSuffix": "{tier} आवास",
+    "explanationUnavailable": "इस समय सरल-भाषा में व्याख्या उपलब्ध नहीं है — ऊपर दिए गए आंकड़े वास्तविक और परिकलित हैं, बस उनका वर्णन नहीं किया गया है।"
   },
   "itineraryTimeline": {
     "heading": "दिन-प्रतिदिन योजना",

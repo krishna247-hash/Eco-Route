@@ -133,7 +133,7 @@ export default function ItineraryPage() {
       </div>
 
       <p className="mb-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-900">
-        {recommended.explanation}
+        {recommended.explanation || t('itinerary.explanationUnavailable')}
       </p>
 
       <div className="grid gap-6 md:grid-cols-2">
