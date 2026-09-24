@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { ComparisonTable } from '@/components/itinerary/ComparisonTable';
 import { loadTripResult } from '@/lib/tripStore';
+import { getStoredTrip } from '@/lib/api-client';
 import { useI18n } from '@/i18n/I18nProvider';
 import type { StoredTripResult } from '@/types';
 
@@ -15,7 +16,25 @@ export default function ComparePage() {
   const [trip, setTrip] = useState<StoredTripResult | null | undefined>(undefined);
 
   useEffect(() => {
-    setTrip(loadTripResult(params.id));
+    let cancelled = false;
+    const fromSession = loadTripResult(params.id);
+    if (fromSession) {
+      setTrip(fromSession);
+      return;
+    }
+    // Same backend fallback as the itinerary page: a trip opened from "My
+    // Trips", a different tab, or after a reload won't be in this
+    // session's storage even though it genuinely exists.
+    getStoredTrip(params.id)
+      .then((result) => {
+        if (!cancelled) setTrip(result);
+      })
+      .catch(() => {
+        if (!cancelled) setTrip(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [params.id]);
 
   if (trip === undefined) {
