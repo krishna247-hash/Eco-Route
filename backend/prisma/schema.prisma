@@ -90,10 +90,18 @@ model Itinerary {
   tripId           String
   trip             Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
   label            ItineraryLabel
+  transportMode    String?
+  accommodationTier String?
   totalCarbonKgCo2e Float
   totalCostUsd     Float
   totalDurationHrs Float
   preferenceScore  Float
+  // Full per-category breakdowns, stored so a trip can be redisplayed in
+  // full later (e.g. from "My Trips") without re-running optimization --
+  // shaped like CarbonBreakdown / CostBreakdown in the frontend/ai-service.
+  // Nullable because trips created before this field existed won't have it.
+  carbonBreakdown  Json?
+  costBreakdown    Json?
   createdAt        DateTime       @default(now())
 
   transportOptions TransportOption[]

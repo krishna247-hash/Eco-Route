@@ -1,4 +1,4 @@
-import type { PlanTripRequest, PlanTripResponse } from '@/types';
+import type { PlanTripRequest, PlanTripResponse, StoredTripResult } from '@/types';
 import type { AccommodationTier } from '@/lib/hotelApi';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
@@ -54,6 +54,62 @@ export async function planTrip(input: PlanTripRequest): Promise<PlanTripResponse
   }
 
   return response.json() as Promise<PlanTripResponse>;
+}
+
+export interface TripSummary {
+  tripId: string;
+  origin: string;
+  destinationName: string;
+  destinationCountry: string;
+  startDate: string;
+  endDate: string;
+  travelers: number;
+  createdAt: string;
+  recommended: {
+    label: string;
+    totalCarbonKgCo2e: number;
+    totalCostUsd: number;
+    totalDurationHrs: number;
+  } | null;
+}
+
+export async function listMyTrips(): Promise<TripSummary[]> {
+  const response = await authedFetch('/api/v1/trips');
+  if (!response.ok) {
+    throw new Error(`Failed to load your trips (${response.status})`);
+  }
+  const data = (await response.json()) as { trips: TripSummary[] };
+  return data.trips;
+}
+
+export async function getStoredTrip(tripId: string): Promise<StoredTripResult | null> {
+  const response = await authedFetch(`/api/v1/trips/${tripId}`);
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Failed to load trip (${response.status})`);
+  }
+  const trip = (await response.json()) as {
+    tripId: string;
+    origin: string;
+    startDate: string;
+    endDate: string;
+    travelers: number;
+    preference: 'eco' | 'balanced' | 'budget' | 'speed';
+    destination: { name: string; country: string; latitude: number; longitude: number };
+    itineraries: PlanTripResponse['itineraries'];
+  };
+  return {
+    request: {
+      origin: trip.origin,
+      destination: trip.destination,
+      distanceKm: 0,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      travelers: trip.travelers,
+      preference: trip.preference,
+    },
+    response: { tripId: trip.tripId, destinationId: '', baselineId: '', itineraries: trip.itineraries },
+  };
 }
 
 export interface Booking {

@@ -9,6 +9,7 @@ import { CarbonDashboard } from '@/components/dashboard/CarbonDashboard';
 import { CostDashboard } from '@/components/dashboard/CostDashboard';
 import { HotelList } from '@/components/hotels/HotelList';
 import { loadTripResult } from '@/lib/tripStore';
+import { getStoredTrip } from '@/lib/api-client';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useCurrency } from '@/lib/CurrencyProvider';
 import type { AccommodationTier } from '@/lib/hotelApi';
@@ -33,7 +34,26 @@ export default function ItineraryPage() {
   const [trip, setTrip] = useState<StoredTripResult | null | undefined>(undefined);
 
   useEffect(() => {
-    setTrip(loadTripResult(params.id));
+    let cancelled = false;
+    const fromSession = loadTripResult(params.id);
+    if (fromSession) {
+      setTrip(fromSession);
+      return;
+    }
+    // Not in this browser session's storage (e.g. opened from "My Trips",
+    // a different tab, or after a reload) -- fetch the real persisted
+    // record from the backend rather than showing "not found" for a trip
+    // that genuinely exists.
+    getStoredTrip(params.id)
+      .then((result) => {
+        if (!cancelled) setTrip(result);
+      })
+      .catch(() => {
+        if (!cancelled) setTrip(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [params.id]);
 
   if (trip === undefined) {

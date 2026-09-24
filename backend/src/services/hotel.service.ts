@@ -20,6 +20,8 @@
  * request can even end up with a mix (real names for the tiers OSM had
  * enough listings for, synthetic filling in the rest). */
 
+import { wikimediaPhotoUrl } from "./wikimedia.util";
+
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const OVERPASS_RADIUS_METERS = 5000;
 const OVERPASS_TIMEOUT_MS = 7000;
@@ -185,21 +187,6 @@ export class DemoHotelProvider implements HotelProvider {
 }
 
 /* ---- OpenStreetMap-backed identities, via the free/keyless Overpass API ---- */
-
-const WIKIMEDIA_COMMONS_FILE_PREFIX = "File:";
-
-/** Turns an OSM `wikimedia_commons=File:...` tag into a real, directly
- * loadable photo URL via Commons' Special:FilePath redirect -- no extra
- * API call or lookup needed. Category: tags and anything else are left
- * alone (never guessed at) since there's no single photo to point to. */
-function wikimediaPhotoUrl(wikimediaCommonsTag: string | undefined): string | undefined {
-  if (!wikimediaCommonsTag?.startsWith(WIKIMEDIA_COMMONS_FILE_PREFIX)) {
-    return undefined;
-  }
-  const filename = wikimediaCommonsTag.slice(WIKIMEDIA_COMMONS_FILE_PREFIX.length);
-  if (!filename) return undefined;
-  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=800`;
-}
 
 interface OverpassElement {
   type: "node" | "way" | "relation";

@@ -1,9 +1,16 @@
 {
   "nav": {
     "brandTagline": "Carbon-Aware Itineraries",
-    "tripPlanner": "Trip Planner",
+    "tripPlanner": "Plan a Trip",
     "exploreMap": "Explore Map",
-    "generateItinerary": "Generate Itinerary"
+    "generateItinerary": "Plan a Trip",
+    "destinations": "Destinations",
+    "hotels": "Hotels",
+    "myTrips": "My Trips",
+    "assistant": "Assistant",
+    "about": "About",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
     "org": "EcoRoute Project",
@@ -11,24 +18,27 @@
     "compliance": "Compliant with DEFRA 2023 & ICAO Greenhouse Gas Accounting Standards."
   },
   "home": {
-    "badge": "NSGA-II · DEFRA 2023 · Gemini-explained",
-    "headingBefore": "Plan trips that weigh ",
-    "headingHighlight": "carbon",
-    "headingAfter": " as much as cost",
-    "subheading": "EcoRoute generates candidate itineraries, ranks them across carbon, cost, time and your preferences using multi-objective optimization, and explains each recommendation in plain language.",
+    "badge": "Smarter journeys. Lighter footprints.",
+    "headingBefore": "Discover places ",
+    "headingHighlight": "worth remembering",
+    "headingAfter": "",
+    "subheading": "Plan personalized journeys that balance experiences, time, cost, and sustainability.",
     "cta": "Plan a trip",
+    "exploreDestinations": "Explore destinations",
+    "searchHeading": "Where do you want to go?",
+    "searchSubheading": "Search a destination to start exploring, or jump straight into planning a trip.",
     "features": [
       {
-        "title": "Multi-objective optimization",
-        "description": "NSGA-II Pareto ranking balances carbon, cost, time, and your preference in one pass."
+        "title": "Find the right balance",
+        "description": "Every itinerary is weighed across carbon, cost, time, and what matters most to you -- in one pass."
       },
       {
-        "title": "Real emission factors",
-        "description": "DEFRA 2023 and ICAO-sourced figures, not guesses — every number is traceable."
+        "title": "Understand your footprint",
+        "description": "Built from published emission-factor data, not guesses -- every number is traceable."
       },
       {
-        "title": "Plain-language explanations",
-        "description": "An LLM turns the computed numbers into a 2-3 sentence rationale for each option."
+        "title": "Why we recommend this",
+        "description": "Each option comes with a short, plain-language reason -- no jargon required."
       }
     ]
   },
@@ -183,6 +193,85 @@
     "openLabel": "Open EcoRoute assistant",
     "closeLabel": "Close",
     "sendLabel": "Send"
+  },
+  "hotelsPage": {
+    "title": "Find a place to stay",
+    "subtitle": "Search hotels near any destination.",
+    "destinationLabel": "Destination",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "search": "Search hotels",
+    "searchPrompt": "Search a destination above to see places to stay."
+  },
+  "hotelDetail": {
+    "notFound": "We couldn't find that hotel -- results are only kept for your current search session.",
+    "backToSearch": "Back to hotel search"
+  },
+  "destinations": {
+    "title": "Where do you want to go?",
+    "subtitle": "A few places to start exploring -- or search any destination from the trip planner."
+  },
+  "destinationDetail": {
+    "notFound": "We don't have this destination in our discovery list yet -- you can still plan a trip to it from the planner.",
+    "backToDestinations": "Back to destinations",
+    "loading": "Loading…",
+    "readMore": "Read more on Wikipedia",
+    "planTrip": "Plan a trip here",
+    "viewHotels": "View hotels",
+    "famousPlaces": "Famous places",
+    "noAttractions": "We don't have notable places on record for this destination yet.",
+    "kmFromCenter": "{distance} km from center"
+  },
+  "about": {
+    "title": "Travel that weighs what matters",
+    "intro": "EcoRoute plans journeys that balance the experiences you want against the time, cost, and environmental footprint they carry -- so the trade-offs are visible, not hidden.",
+    "plan": {
+      "title": "Plan with intention",
+      "description": "Tell us where, when, and what matters most to you -- we'll shape a set of real itinerary options around it."
+    },
+    "footprint": {
+      "title": "Understand your footprint",
+      "description": "Every itinerary shows its estimated environmental impact alongside cost and time, so it's part of the decision, not an afterthought."
+    },
+    "assistant": {
+      "title": "A travel companion",
+      "description": "Ask the EcoRoute Assistant to adjust your plan, compare options, or explain a recommendation in plain language."
+    },
+    "honest": {
+      "title": "Never fabricated",
+      "description": "Where live data genuinely exists -- routes, locations, hotel identities, exchange rates -- we use it. Where it doesn't, we say so plainly instead of guessing."
+    },
+    "methodology": {
+      "title": "How EcoRoute works",
+      "intro": "For the curious: the technical approach behind the recommendations.",
+      "optimization": {
+        "term": "Multi-objective optimization",
+        "definition": "Each itinerary is ranked across carbon, cost, time, and your stated preference at once, rather than optimizing for a single number."
+      },
+      "emissions": {
+        "term": "Real emission factors",
+        "definition": "Carbon estimates are built from published DEFRA 2023 and ICAO emission factors, not guesses -- every figure is traceable to its source."
+      },
+      "explanations": {
+        "term": "Plain-language explanations",
+        "definition": "An AI model turns the computed numbers behind each recommendation into a short, readable rationale."
+      }
+    },
+    "cta": "Plan your journey"
+  },
+  "myTrips": {
+    "title": "My trips",
+    "subtitle": "Journeys you've planned with EcoRoute.",
+    "loading": "Loading your trips…",
+    "loadError": "Could not load your trips. Please try again.",
+    "empty": "You haven't planned a trip yet.",
+    "planFirst": "Plan your first trip"
+  },
+  "assistantPage": {
+    "title": "Your Travel Assistant",
+    "subtitle": "Ask about a trip, a destination, or sustainable travel in general.",
+    "intro": "Try: \"Find a cheaper hotel\", \"Reduce my trip's emissions\", or \"What's a low-carbon way to travel?\""
   },
   "locationAutocomplete": {
     "defaultPlaceholder": "Search a city, town, or place…",
