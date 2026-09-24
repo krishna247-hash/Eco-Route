@@ -8,7 +8,8 @@ const TIERS: AccommodationTier[] = ["budget", "standard", "eco"];
 
 hotelsRouter.get("/search", async (req, res, next) => {
   try {
-    const { destinationName, destinationCountry, checkIn, checkOut, guests, tier } = req.query;
+    const { destinationName, destinationCountry, destinationLat, destinationLon, checkIn, checkOut, guests, tier } =
+      req.query;
 
     if (typeof destinationName !== "string" || !destinationName.trim()) {
       throw new AppError(400, "destinationName is required");
@@ -25,11 +26,22 @@ hotelsRouter.get("/search", async (req, res, next) => {
     if (tier !== undefined && !TIERS.includes(tier as AccommodationTier)) {
       throw new AppError(400, `tier must be one of ${TIERS.join(", ")}`);
     }
+    let lat: number | undefined;
+    let lon: number | undefined;
+    if (destinationLat !== undefined || destinationLon !== undefined) {
+      lat = Number(destinationLat);
+      lon = Number(destinationLon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+        throw new AppError(400, "destinationLat/destinationLon must be valid coordinates when provided");
+      }
+    }
 
     const provider = getHotelProvider();
     const result = await provider.search({
       destinationName: destinationName as string,
       destinationCountry: typeof destinationCountry === "string" ? destinationCountry : "",
+      destinationLat: lat,
+      destinationLon: lon,
       checkIn: String(checkIn),
       checkOut: String(checkOut),
       guests: guestsNum,

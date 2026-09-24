@@ -136,6 +136,13 @@ describe("GET /api/v1/hotels/search", () => {
     assert.equal(response.body.isDemoData, true);
     assert.ok(response.body.hotels.length > 0);
   });
+
+  it("rejects an out-of-range destinationLat with 400 (before any network call)", async () => {
+    const response = await request(app)
+      .get("/api/v1/hotels/search")
+      .query({ ...validQuery, destinationLat: 999, destinationLon: 2.35 });
+    assert.equal(response.status, 400);
+  });
 });
 
 describe("POST /api/v1/chat", () => {

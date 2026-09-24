@@ -91,6 +91,37 @@ curl -X POST http://localhost:4000/api/v1/trips/plan \
   }'
 ```
 
+## Location, routing & hotel-identity providers
+
+`src/services/location.service.ts`, `routing.service.ts`, and the
+`OsmDemoHotelProvider` in `hotel.service.ts` all call free, keyless,
+OpenStreetMap-backed APIs — no account or API key required for any of
+them:
+
+| Service | Provider | Used for |
+| --- | --- | --- |
+| Location search | [Photon](https://photon.komoot.io) | Autocomplete in the planner and map |
+| Reverse geocoding | [Nominatim](https://nominatim.openstreetmap.org) | Naming a map click |
+| Routing | [OSRM](http://router.project-osrm.org) | Real distance/duration between two points |
+| Hotel identities | [Overpass API](https://overpass-api.de) | Real hotel names/locations near a destination (pricing/availability is still generated demo data — see `hotel.service.ts`'s module comment) |
+
+**These are shared community demo instances, not an SLA product** —
+fine for development and a project like this, but not meant for
+production-scale traffic; each one says so in its own service file.
+Every call has a short timeout and an honest fallback (a clearly-labeled
+straight-line route estimate, a clean error, or synthetic hotel names)
+rather than fabricating data when a provider is slow or unreachable —
+see the `Content` comment at the top of each service file.
+
+To run against production-grade, still fully open-source instances of
+these same providers, self-host them (each publishes its own official
+Docker image: `mediagis/nominatim` doubles as a Photon-style search
+backend, `osrm/osrm-backend`, `wiktorn/overpass-api`) and point the
+`*_URL` constant at the top of the corresponding service file at your
+own instance instead of the public one. No other code changes — every
+caller only ever sees the normalized result shape each service already
+returns.
+
 ## Tests
 
 ```bash

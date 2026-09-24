@@ -132,6 +132,8 @@ export default function ItineraryPage() {
           tripId={response.tripId}
           destinationName={request.destination.name}
           destinationCountry={request.destination.country}
+          destinationLat={request.destination.latitude}
+          destinationLon={request.destination.longitude}
           checkIn={request.startDate}
           checkOut={request.endDate}
           guests={request.travelers}

@@ -18,6 +18,8 @@ interface HotelListProps {
   tripId: string;
   destinationName: string;
   destinationCountry: string;
+  destinationLat?: number;
+  destinationLon?: number;
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -28,6 +30,8 @@ export function HotelList({
   tripId,
   destinationName,
   destinationCountry,
+  destinationLat,
+  destinationLon,
   checkIn,
   checkOut,
   guests,
@@ -49,7 +53,7 @@ export function HotelList({
     setHotels(null);
     setError(null);
 
-    searchHotels({ destinationName, destinationCountry, checkIn, checkOut, guests, tier })
+    searchHotels({ destinationName, destinationCountry, destinationLat, destinationLon, checkIn, checkOut, guests, tier })
       .then((result) => {
         if (cancelled) return;
         setHotels(result.hotels);
@@ -79,7 +83,7 @@ export function HotelList({
     // `t` intentionally excluded: switching language shouldn't re-fetch
     // hotels/bookings/payment-status, just re-render with new strings.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId, destinationName, destinationCountry, checkIn, checkOut, guests, tier]);
+  }, [tripId, destinationName, destinationCountry, destinationLat, destinationLon, checkIn, checkOut, guests, tier]);
 
   async function handleReserve(hotel: HotelListing) {
     setActionError(null);

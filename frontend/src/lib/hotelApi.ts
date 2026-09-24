@@ -16,7 +16,7 @@ export interface HotelListing {
 
 export interface HotelSearchResponse {
   isDemoData: true;
-  source: 'demo-generated';
+  source: 'osm' | 'demo-generated';
   disclaimer: string;
   hotels: HotelListing[];
 }
@@ -24,6 +24,8 @@ export interface HotelSearchResponse {
 export async function searchHotels(params: {
   destinationName: string;
   destinationCountry: string;
+  destinationLat?: number;
+  destinationLon?: number;
   checkIn: string;
   checkOut: string;
   guests: number;
@@ -37,6 +39,10 @@ export async function searchHotels(params: {
     guests: String(params.guests),
   });
   if (params.tier) query.set('tier', params.tier);
+  if (params.destinationLat !== undefined && params.destinationLon !== undefined) {
+    query.set('destinationLat', String(params.destinationLat));
+    query.set('destinationLon', String(params.destinationLon));
+  }
 
   const response = await fetch(`${API_BASE_URL}/api/v1/hotels/search?${query.toString()}`);
   if (!response.ok) {
