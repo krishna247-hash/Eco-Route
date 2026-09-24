@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { PreferenceForm } from '@/components/planner/PreferenceForm';
 import { planTrip } from '@/lib/api-client';
 import { saveTripResult } from '@/lib/tripStore';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { PlanTripRequest } from '@/types';
 import { Compass, AlertCircle } from 'lucide-react';
 
 function PlanPageInner() {
   const router = useRouter();
+  const { t } = useI18n();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,7 +23,7 @@ function PlanPageInner() {
       saveTripResult(input, response);
       router.push(`/itinerary/${response.tripId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong while planning your trip.');
+      setError(err instanceof Error ? err.message : t('plan.defaultError'));
       setSubmitting(false);
     }
   }
@@ -32,10 +34,8 @@ function PlanPageInner() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-md shadow-emerald-500/20">
           <Compass className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-semibold text-slate-900">Plan a trip</h1>
-        <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-          We&apos;ll generate candidate itineraries and rank them by carbon, cost, time, and your preference.
-        </p>
+        <h1 className="text-2xl font-semibold text-slate-900">{t('plan.title')}</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">{t('plan.subtitle')}</p>
       </div>
 
       {error && (

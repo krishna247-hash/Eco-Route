@@ -153,11 +153,12 @@ export interface ChatTripContext {
 export async function sendChatMessage(
   messages: ChatMessage[],
   tripContext?: ChatTripContext | null,
+  locale?: 'en' | 'hi',
 ): Promise<string> {
   const response = await authedFetch('/api/v1/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, tripContext: tripContext ?? undefined }),
+    body: JSON.stringify({ messages, tripContext: tripContext ?? undefined, locale: locale ?? 'en' }),
   });
   if (!response.ok) {
     const detail = await response.text();

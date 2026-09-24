@@ -12,6 +12,7 @@ import {
   PaymentNotConfiguredError,
   type Booking,
 } from '@/lib/api-client';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface HotelListProps {
   tripId: string;
@@ -32,6 +33,7 @@ export function HotelList({
   guests,
   tier,
 }: HotelListProps) {
+  const { t } = useI18n();
   const [hotels, setHotels] = useState<HotelListing[] | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export function HotelList({
       })
       .catch(() => {
         if (cancelled) return;
-        setError('Hotel listings are temporarily unavailable.');
+        setError(t('hotels.listingsUnavailable'));
       });
 
     listTripBookings(tripId)
@@ -74,6 +76,9 @@ export function HotelList({
     return () => {
       cancelled = true;
     };
+    // `t` intentionally excluded: switching language shouldn't re-fetch
+    // hotels/bookings/payment-status, just re-render with new strings.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId, destinationName, destinationCountry, checkIn, checkOut, guests, tier]);
 
   async function handleReserve(hotel: HotelListing) {
@@ -93,7 +98,7 @@ export function HotelList({
       });
       setBookings((prev) => ({ ...prev, [hotel.id]: booking }));
     } catch {
-      setActionError('Could not save that reservation. Please try again.');
+      setActionError(t('hotels.couldNotSaveReservation'));
     } finally {
       setPendingHotelId(null);
     }
@@ -116,7 +121,7 @@ export function HotelList({
       if (err instanceof PaymentNotConfiguredError) {
         setPaymentNotice(err.message);
       } else {
-        setActionError('Could not start checkout. Please try again.');
+        setActionError(t('hotels.couldNotStartCheckout'));
       }
     } finally {
       setPendingHotelId(null);
@@ -136,7 +141,7 @@ export function HotelList({
         return next;
       });
     } catch {
-      setActionError('Could not cancel that reservation. Please try again.');
+      setActionError(t('hotels.couldNotCancelReservation'));
     } finally {
       setPendingHotelId(null);
     }
@@ -155,7 +160,7 @@ export function HotelList({
     return (
       <div className="flex items-center justify-center gap-2 py-8 text-sm text-slate-400">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Finding places to stay…
+        {t('hotels.findingPlaces')}
       </div>
     );
   }
@@ -191,9 +196,10 @@ export function HotelList({
                   {hotel.rating.toFixed(1)}
                 </span>
               </div>
-              <p className="mb-2 flex items-center gap-1 text-xs capitalize text-slate-500">
+              <p className="mb-2 flex items-center gap-1 text-xs text-slate-500">
                 <MapPin className="h-3 w-3" />
-                {hotel.distanceFromCenterKm.toFixed(1)} km from center · {hotel.tier} tier
+                {t('hotels.kmFromCenter', { distance: hotel.distanceFromCenterKm.toFixed(1) })} ·{' '}
+                {t('hotels.tierSuffix', { tier: t(`planForm.accommodationOptions.${hotel.tier}`) })}
               </p>
               <div className="mb-2 flex flex-wrap gap-1">
                 {hotel.amenities.map((amenity) => (
@@ -204,14 +210,16 @@ export function HotelList({
               </div>
               <div className="mb-3 flex items-baseline justify-between">
                 <span className="text-lg font-semibold text-slate-900">${hotel.pricePerNightUsd}</span>
-                <span className="text-xs text-slate-400">/night · ${hotel.totalPriceUsd} total</span>
+                <span className="text-xs text-slate-400">
+                  {t('hotels.perNight')} · ${hotel.totalPriceUsd} {t('hotels.total')}
+                </span>
               </div>
               {booking ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2">
                     <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
                       <Check className="h-3.5 w-3.5" />
-                      Saved to your trip
+                      {t('hotels.savedToTrip')}
                     </span>
                     <button
                       type="button"
@@ -220,18 +228,18 @@ export function HotelList({
                       className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-red-600 disabled:opacity-50"
                     >
                       {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
-                      Cancel
+                      {t('hotels.cancel')}
                     </button>
                   </div>
                   <button
                     type="button"
                     onClick={() => handlePay(hotel)}
                     disabled={isPending}
-                    title={!paymentConfigured ? 'No payment provider is connected yet' : undefined}
+                    title={!paymentConfigured ? t('hotels.noPaymentTooltip') : undefined}
                     className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
                   >
                     {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
-                    Pay &amp; confirm
+                    {t('hotels.payConfirm')}
                   </button>
                 </div>
               ) : (
@@ -242,7 +250,7 @@ export function HotelList({
                   className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600 py-2 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 disabled:opacity-60"
                 >
                   {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {isPending ? 'Saving…' : 'Reserve (demo)'}
+                  {isPending ? t('hotels.saving') : t('hotels.reserveDemo')}
                 </button>
               )}
             </div>

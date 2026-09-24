@@ -183,4 +183,12 @@ describe("POST /api/v1/chat", () => {
     });
     assert.equal(response.status, 400);
   });
+
+  it("rejects an unsupported locale with 400", async () => {
+    const response = await authedChat().send({
+      messages: [{ role: "user", content: "hi" }],
+      locale: "fr",
+    });
+    assert.equal(response.status, 400);
+  });
 });

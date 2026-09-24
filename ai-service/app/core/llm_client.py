@@ -163,12 +163,23 @@ def _format_trip_context(trip_context: dict | None) -> str:
     return "Current trip context:\n" + "\n".join(lines)
 
 
-def chat_reply(messages: list[dict], trip_context: dict | None) -> str:
+_CHAT_LANGUAGE_INSTRUCTION = {
+    "en": "Reply in English.",
+    "hi": "Reply in Hindi (Devanagari script), regardless of what script the traveler wrote in.",
+}
+
+
+def chat_reply(messages: list[dict], trip_context: dict | None, locale: str = "en") -> str:
     """Multi-turn chat reply. `messages` is the full conversation so far,
     each `{"role": "user"|"assistant", "content": str}`, ending with the
     newest user message. Stateless by design (the caller holds history,
     same as explain_recommendations doesn't hold state) -- there is no
     server-side session to leak between users.
+
+    `locale` ("en"|"hi") mirrors the UI language the traveler has selected,
+    so the assistant replies in the same language as the rest of the app
+    rather than defaulting to English regardless of it -- a real language
+    switch, not just translated button labels around an English-only bot.
     """
     if not messages or messages[-1]["role"] != "user":
         raise ValueError("messages must be non-empty and end with a user message")
@@ -180,7 +191,8 @@ def chat_reply(messages: list[dict], trip_context: dict | None) -> str:
     ]
     latest = bounded[-1]["content"]
 
-    system_instruction = f"{_CHAT_SYSTEM_INSTRUCTION}\n\n{_format_trip_context(trip_context)}"
+    language_instruction = _CHAT_LANGUAGE_INSTRUCTION.get(locale, _CHAT_LANGUAGE_INSTRUCTION["en"])
+    system_instruction = f"{_CHAT_SYSTEM_INSTRUCTION}\n\n{language_instruction}\n\n{_format_trip_context(trip_context)}"
     config = GenerateContentConfig(
         temperature=0.4,
         max_output_tokens=_CHAT_MAX_OUTPUT_TOKENS,

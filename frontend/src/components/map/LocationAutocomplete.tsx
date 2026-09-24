@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, MapPin, Search } from 'lucide-react';
 import { searchLocations, type LocationResult } from '@/lib/locationApi';
+import { useI18n } from '@/i18n/I18nProvider';
 
 interface LocationAutocompleteProps {
   placeholder?: string;
@@ -14,11 +15,12 @@ interface LocationAutocompleteProps {
 const DEBOUNCE_MS = 350;
 
 export function LocationAutocomplete({
-  placeholder = 'Search a city, town, or place…',
+  placeholder,
   initialValue = '',
   onSelect,
   className,
 }: LocationAutocompleteProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState(initialValue);
   const [results, setResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,10 +52,10 @@ export function LocationAutocomplete({
       try {
         const found = await searchLocations(trimmed);
         setResults(found);
-        setError(found.length === 0 ? 'No matches found.' : null);
+        setError(found.length === 0 ? t('locationAutocomplete.noMatches') : null);
       } catch {
         setResults([]);
-        setError('Location search is temporarily unavailable. You can still enter details manually below.');
+        setError(t('locationAutocomplete.searchUnavailable'));
       } finally {
         setLoading(false);
       }
@@ -92,7 +94,7 @@ export function LocationAutocomplete({
           value={query}
           onChange={(e) => handleQueryChange(e.target.value)}
           onFocus={() => setOpen(true)}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('locationAutocomplete.defaultPlaceholder')}
           className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white py-2 pl-8 pr-8 text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
         {loading && (

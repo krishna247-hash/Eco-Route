@@ -8,6 +8,7 @@ import { ItineraryTimeline } from '@/components/itinerary/ItineraryTimeline';
 import { CarbonDashboard } from '@/components/dashboard/CarbonDashboard';
 import { HotelList } from '@/components/hotels/HotelList';
 import { loadTripResult } from '@/lib/tripStore';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { AccommodationTier } from '@/lib/hotelApi';
 import type { StoredTripResult } from '@/types';
 
@@ -23,14 +24,9 @@ const TRANSPORT_ICON: Record<string, typeof Car> = {
   flight: Plane,
 };
 
-const STAT_CARDS = [
-  { key: 'carbon', label: 'Total carbon', icon: Leaf, accent: 'text-emerald-600' },
-  { key: 'cost', label: 'Total cost', icon: DollarSign, accent: 'text-teal-600' },
-  { key: 'duration', label: 'Duration', icon: Clock3, accent: 'text-sky-600' },
-] as const;
-
 export default function ItineraryPage() {
   const params = useParams<{ id: string }>();
+  const { t } = useI18n();
   const [trip, setTrip] = useState<StoredTripResult | null | undefined>(undefined);
 
   useEffect(() => {
@@ -44,11 +40,9 @@ export default function ItineraryPage() {
   if (trip === null) {
     return (
       <main className="mx-auto max-w-2xl animate-fade-in px-4 py-16 text-center">
-        <p className="text-slate-600">
-          We couldn&apos;t find this trip. Trip results are only kept for the current browser session.
-        </p>
+        <p className="text-slate-600">{t('itinerary.notFoundMessage')}</p>
         <Link href="/plan" className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4">
-          Plan a new trip
+          {t('itinerary.planNewTrip')}
         </Link>
       </main>
     );
@@ -59,6 +53,12 @@ export default function ItineraryPage() {
     response.itineraries.find((option) => option.label === 'BALANCED') ?? response.itineraries[0];
   const nights = nightsBetween(request.startDate, request.endDate);
   const TransportIcon = TRANSPORT_ICON[recommended.transportMode] ?? Car;
+
+  const STAT_CARDS = [
+    { key: 'carbon' as const, label: t('itinerary.totalCarbon'), icon: Leaf, accent: 'text-emerald-600' },
+    { key: 'cost' as const, label: t('itinerary.totalCost'), icon: DollarSign, accent: 'text-teal-600' },
+    { key: 'duration' as const, label: t('itinerary.duration'), icon: Clock3, accent: 'text-sky-600' },
+  ];
 
   const statValues: Record<(typeof STAT_CARDS)[number]['key'], string> = {
     carbon: `${recommended.carbon.total_co2e.toFixed(1)} kg`,
@@ -75,8 +75,8 @@ export default function ItineraryPage() {
           </h1>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
             <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
-            Recommended:{' '}
-            <span className="font-medium text-emerald-700">{recommended.label.replace('_', ' ')}</span>
+            {t('itinerary.recommended')}{' '}
+            <span className="font-medium text-emerald-700">{t(`labels.${recommended.label}`)}</span>
           </p>
         </div>
         <Link
@@ -84,18 +84,18 @@ export default function ItineraryPage() {
           className="flex items-center gap-1.5 rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50"
         >
           <ArrowLeftRight className="h-3.5 w-3.5" />
-          Compare all
+          {t('itinerary.compareAll')}
         </Link>
       </div>
 
       <div className="mb-4 flex animate-fade-up flex-wrap gap-2 [animation-delay:60ms]">
-        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium capitalize text-slate-700 shadow-sm">
+        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
           <TransportIcon className="h-3.5 w-3.5 text-emerald-600" />
-          {recommended.transportMode}
+          {t(`planForm.transportOptions.${recommended.transportMode}`)}
         </span>
-        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium capitalize text-slate-700 shadow-sm">
+        <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
           <Hotel className="h-3.5 w-3.5 text-emerald-600" />
-          {recommended.accommodationTier} accommodation
+          {t('itinerary.accommodationSuffix', { tier: t(`planForm.accommodationOptions.${recommended.accommodationTier}`) })}
         </span>
       </div>
 
@@ -134,7 +134,7 @@ export default function ItineraryPage() {
       <div className="mt-8 animate-fade-up [animation-delay:340ms]">
         <h2 className="mb-3 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
           <Hotel className="h-4 w-4 text-emerald-600" />
-          Hotels near {request.destination.name}
+          {t('itinerary.hotelsNear', { destination: request.destination.name })}
         </h2>
         <HotelList
           tripId={response.tripId}

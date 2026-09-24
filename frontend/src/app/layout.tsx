@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Link from 'next/link';
-import { Leaf, Compass, Map, Sparkles } from 'lucide-react';
-import { ChatWidget } from '@/components/chat/ChatWidget';
+import { I18nProvider } from '@/i18n/I18nProvider';
+import { SiteChrome } from '@/components/layout/SiteChrome';
 
 export const metadata: Metadata = {
   title: 'EcoRoute | AI-Driven Sustainable Travel Planning',
@@ -18,70 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
-        {/* Navigation Bar */}
-        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                <Leaf className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-xl tracking-tight text-slate-900">EcoRoute</span>
-                  <span className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                    AI
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 -mt-0.5 hidden sm:block">Carbon-Aware Itineraries</p>
-              </div>
-            </Link>
-
-            <nav className="flex items-center gap-1 sm:gap-2">
-              <Link
-                href="/plan"
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
-              >
-                <Compass className="w-4 h-4 text-emerald-600" />
-                <span>Trip Planner</span>
-              </Link>
-              <Link
-                href="/map"
-                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/60 rounded-lg transition-colors"
-              >
-                <Map className="w-4 h-4 text-emerald-600" />
-                <span>Explore Map</span>
-              </Link>
-              <Link
-                href="/plan"
-                className="hidden md:flex items-center gap-1.5 ml-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-600/20 transition-all hover:shadow-md"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Generate Itinerary</span>
-              </Link>
-            </nav>
-          </div>
-        </header>
-
-        {/* Main Content Area */}
-        <main className="flex-1">{children}</main>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-200 bg-white py-8 text-slate-500 text-xs">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-emerald-600 flex items-center justify-center text-white">
-                <Leaf className="w-3.5 h-3.5" />
-              </div>
-              <span className="font-semibold text-slate-800">EcoRoute Project</span>
-              <span>— Multi-Objective Carbon Optimization Framework</span>
-            </div>
-            <p className="text-slate-400">
-              Compliant with DEFRA 2023 & ICAO Greenhouse Gas Accounting Standards.
-            </p>
-          </div>
-        </footer>
-
-        <ChatWidget />
+        <I18nProvider>
+          <SiteChrome>{children}</SiteChrome>
+        </I18nProvider>
       </body>
     </html>
   );

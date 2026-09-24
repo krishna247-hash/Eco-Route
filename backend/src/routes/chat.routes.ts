@@ -6,6 +6,8 @@ import type { ChatMessage, ChatTripContext } from "../services/aiService.client"
 
 export const chatRouter = Router();
 
+const LOCALES = ["en", "hi"] as const;
+
 function isChatMessage(value: unknown): value is ChatMessage {
   if (typeof value !== "object" || value === null) return false;
   const m = value as Record<string, unknown>;
@@ -21,7 +23,7 @@ function isTripContext(value: unknown): value is ChatTripContext {
 chatRouter.post("/", authMiddleware, async (req: AuthedRequest, res, next) => {
   try {
     const body = req.body ?? {};
-    const { messages, tripContext } = body;
+    const { messages, tripContext, locale } = body;
 
     if (!Array.isArray(messages) || messages.length === 0 || !messages.every(isChatMessage)) {
       throw new AppError(400, "messages must be a non-empty array of { role: 'user'|'assistant', content: string }");
@@ -32,8 +34,11 @@ chatRouter.post("/", authMiddleware, async (req: AuthedRequest, res, next) => {
     if (tripContext !== undefined && tripContext !== null && !isTripContext(tripContext)) {
       throw new AppError(400, "tripContext, if provided, must include origin, destination, and nights");
     }
+    if (locale !== undefined && !LOCALES.includes(locale)) {
+      throw new AppError(400, `locale must be one of ${LOCALES.join(", ")}`);
+    }
 
-    const result = await aiService.chat({ messages, trip_context: tripContext ?? null });
+    const result = await aiService.chat({ messages, trip_context: tripContext ?? null, locale: locale ?? "en" });
     res.status(200).json(result);
   } catch (err) {
     next(err);

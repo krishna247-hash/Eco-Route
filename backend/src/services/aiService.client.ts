@@ -121,6 +121,7 @@ export interface ChatTripContext {
 export interface ChatRequest {
   messages: ChatMessage[];
   trip_context?: ChatTripContext | null;
+  locale?: "en" | "hi";
 }
 
 export function chat(payload: ChatRequest): Promise<{ reply: string }> {

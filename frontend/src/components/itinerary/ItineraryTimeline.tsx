@@ -1,4 +1,7 @@
+'use client';
+
 import { CalendarDays } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { ItineraryOption } from '@/types';
 
 interface ItineraryTimelineProps {
@@ -15,20 +18,24 @@ interface ItineraryTimelineProps {
  * trip length) rather than inventing daily activities.
  */
 export function ItineraryTimeline({ option, origin, destinationName, nights }: ItineraryTimelineProps) {
+  const { t } = useI18n();
+  const mode = t(`planForm.transportOptions.${option.transportMode}`);
+  const tier = t(`planForm.accommodationOptions.${option.accommodationTier}`);
+
   const days = [
-    { day: 1, description: `Depart ${origin} for ${destinationName} by ${option.transportMode}.` },
+    { day: 1, description: t('itineraryTimeline.depart', { origin, destination: destinationName, mode }) },
     ...Array.from({ length: Math.max(nights - 1, 0) }, (_, i) => ({
       day: i + 2,
-      description: `Stay in ${destinationName} — ${option.accommodationTier} accommodation.`,
+      description: t('itineraryTimeline.stay', { destination: destinationName, tier }),
     })),
-    { day: nights + 1, description: `Return to ${origin} by ${option.transportMode}.` },
+    { day: nights + 1, description: t('itineraryTimeline.return', { origin, mode }) },
   ];
 
   return (
     <div className="card-hover glass-card h-full rounded-xl p-5">
       <h2 className="mb-4 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
         <CalendarDays className="h-4 w-4 text-emerald-600" />
-        Day-by-day plan
+        {t('itineraryTimeline.heading')}
       </h2>
       <ol className="space-y-3">
         {days.map((d, i) => (

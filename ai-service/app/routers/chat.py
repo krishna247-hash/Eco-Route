@@ -10,5 +10,5 @@ router = APIRouter()
 def chat(payload: ChatRequest) -> ChatResponse:
     messages = [m.model_dump() for m in payload.messages]
     trip_context = payload.trip_context.model_dump() if payload.trip_context else None
-    reply = chat_reply(messages, trip_context)
+    reply = chat_reply(messages, trip_context, payload.locale)
     return ChatResponse(reply=reply)

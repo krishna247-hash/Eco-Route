@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { AlertTriangle, Leaf, Loader2, MessageCircle, Send, X } from 'lucide-react';
 import { sendChatMessage, type ChatMessage, type ChatTripContext } from '@/lib/api-client';
 import { loadTripResult } from '@/lib/tripStore';
+import { useI18n } from '@/i18n/I18nProvider';
 
 function nightsBetween(startDate: string, endDate: string): number {
   const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
@@ -53,6 +54,7 @@ function useActiveTripContext(): { tripContext: ChatTripContext | null; label: s
 }
 
 export function ChatWidget() {
+  const { t, locale } = useI18n();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -77,10 +79,10 @@ export function ChatWidget() {
     setSending(true);
 
     try {
-      const reply = await sendChatMessage(nextMessages, tripContext);
+      const reply = await sendChatMessage(nextMessages, tripContext, locale);
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
     } catch {
-      setError('The assistant is temporarily unavailable. Please try again in a moment.');
+      setError(t('chat.unavailable'));
     } finally {
       setSending(false);
     }
@@ -91,7 +93,7 @@ export function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open EcoRoute assistant"
+        aria-label={t('chat.openLabel')}
         className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-600/30 transition-transform hover:scale-105"
       >
         <MessageCircle className="h-6 w-6" />
@@ -105,20 +107,23 @@ export function ChatWidget() {
         <div>
           <p className="flex items-center gap-1.5 text-sm font-semibold">
             <Leaf className="h-4 w-4" />
-            EcoRoute Assistant
+            {t('chat.assistantName')}
           </p>
-          {label && <p className="text-xs text-emerald-50/90">Chatting about {label}</p>}
+          {label && <p className="text-xs text-emerald-50/90">{t('chat.chattingAbout', { trip: label })}</p>}
         </div>
-        <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="rounded-md p-1 hover:bg-white/10">
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label={t('chat.closeLabel')}
+          className="rounded-md p-1 hover:bg-white/10"
+        >
           <X className="h-4 w-4" />
         </button>
       </div>
 
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.length === 0 && (
-          <p className="text-xs text-slate-400">
-            Ask about sustainable travel, or{label ? ' about this trip — carbon, cost, hotels, anything.' : ' anything else on your mind.'}
-          </p>
+          <p className="text-xs text-slate-400">{label ? t('chat.introWithTrip') : t('chat.introGeneral')}</p>
         )}
         {messages.map((message, i) => (
           <div key={i} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -137,7 +142,7 @@ export function ChatWidget() {
           <div className="flex justify-start">
             <p className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Thinking…
+              {t('chat.thinking')}
             </p>
           </div>
         )}
@@ -153,14 +158,14 @@ export function ChatWidget() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a question…"
+          placeholder={t('chat.placeholder')}
           disabled={sending}
           className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
         <button
           type="submit"
           disabled={sending || !input.trim()}
-          aria-label="Send"
+          aria-label={t('chat.sendLabel')}
           className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
         >
           <Send className="h-4 w-4" />

@@ -1,0 +1,179 @@
+{
+  "nav": {
+    "brandTagline": "Carbon-Aware Itineraries",
+    "tripPlanner": "Trip Planner",
+    "exploreMap": "Explore Map",
+    "generateItinerary": "Generate Itinerary"
+  },
+  "footer": {
+    "org": "EcoRoute Project",
+    "tagline": "— Multi-Objective Carbon Optimization Framework",
+    "compliance": "Compliant with DEFRA 2023 & ICAO Greenhouse Gas Accounting Standards."
+  },
+  "home": {
+    "badge": "NSGA-II · DEFRA 2023 · Gemini-explained",
+    "headingBefore": "Plan trips that weigh ",
+    "headingHighlight": "carbon",
+    "headingAfter": " as much as cost",
+    "subheading": "EcoRoute generates candidate itineraries, ranks them across carbon, cost, time and your preferences using multi-objective optimization, and explains each recommendation in plain language.",
+    "cta": "Plan a trip",
+    "features": [
+      {
+        "title": "Multi-objective optimization",
+        "description": "NSGA-II Pareto ranking balances carbon, cost, time, and your preference in one pass."
+      },
+      {
+        "title": "Real emission factors",
+        "description": "DEFRA 2023 and ICAO-sourced figures, not guesses — every number is traceable."
+      },
+      {
+        "title": "Plain-language explanations",
+        "description": "An LLM turns the computed numbers into a 2-3 sentence rationale for each option."
+      }
+    ]
+  },
+  "plan": {
+    "title": "Plan a trip",
+    "subtitle": "We'll generate candidate itineraries and rank them by carbon, cost, time, and your preference.",
+    "defaultError": "Something went wrong while planning your trip."
+  },
+  "planForm": {
+    "originLabel": "Origin",
+    "originPlaceholder": "Search your starting point…",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "Search a destination…",
+    "distanceLabel": "Distance (km)",
+    "distanceHintLive": "Computed from a live route between your two points.",
+    "distanceHintFallback": "Live routing was unavailable — this is a straight-line estimate. Edit it manually if you know the real travel distance.",
+    "distanceHintManual": "Select an origin and destination above to auto-fill this, or enter it directly.",
+    "startDateLabel": "Start date",
+    "endDateLabel": "End date",
+    "travelersLabel": "Travelers",
+    "budgetLabel": "Budget (USD, optional)",
+    "budgetPlaceholder": "No limit",
+    "transportPrefLabel": "Transportation preference",
+    "transportOptions": {
+      "any": "Any",
+      "car": "Car",
+      "train": "Train",
+      "bus": "Bus",
+      "flight": "Flight"
+    },
+    "accommodationPrefLabel": "Accommodation preference",
+    "accommodationOptions": {
+      "any": "Any",
+      "budget": "Budget",
+      "standard": "Standard",
+      "eco": "Eco-certified"
+    },
+    "sustainabilityLabel": "Sustainability preference",
+    "preferenceOptions": {
+      "eco": "Eco",
+      "balanced": "Balanced",
+      "budget": "Budget",
+      "speed": "Speed"
+    },
+    "submitting": "Optimizing your itinerary…",
+    "submit": "Plan my trip"
+  },
+  "map": {
+    "title": "Explore the map",
+    "subtitle": "Search or click to set a starting point and destination, then see a real routed distance.",
+    "fromLabel": "From",
+    "fromPlaceholder": "Search a starting point…",
+    "toLabel": "To",
+    "toPlaceholder": "Search a destination…",
+    "setAsPrompt": "Set {location} as:",
+    "setAsFrom": "From",
+    "setAsTo": "To",
+    "locating": "Locating…",
+    "clickError": "Could not identify that location right now (the map provider may be unreachable). Try searching by name instead.",
+    "showRoute": "Show route",
+    "routing": "Routing…",
+    "reset": "Reset",
+    "planThisTrip": "Plan this trip",
+    "distance": "Distance",
+    "estimatedTime": "Estimated travel time",
+    "unavailable": "Unavailable",
+    "source": "Source",
+    "liveRouting": "Live routing (OSRM)",
+    "straightLineEstimate": "Straight-line estimate"
+  },
+  "itinerary": {
+    "notFoundMessage": "We couldn't find this trip. Trip results are only kept for the current browser session.",
+    "planNewTrip": "Plan a new trip",
+    "recommended": "Recommended:",
+    "compareAll": "Compare all",
+    "totalCarbon": "Total carbon",
+    "totalCost": "Total cost",
+    "duration": "Duration",
+    "hotelsNear": "Hotels near {destination}",
+    "accommodationSuffix": "{tier} accommodation"
+  },
+  "itineraryTimeline": {
+    "heading": "Day-by-day plan",
+    "depart": "Depart {origin} for {destination} by {mode}.",
+    "stay": "Stay in {destination} — {tier} accommodation.",
+    "return": "Return to {origin} by {mode}."
+  },
+  "carbonDashboard": {
+    "heading": "Carbon breakdown",
+    "transport": "Transport",
+    "accommodation": "Accommodation",
+    "activities": "Activities",
+    "total": "Total",
+    "emissions": "Emissions"
+  },
+  "compare": {
+    "label": "Comparison",
+    "backToRecommended": "Back to recommended",
+    "tableHeaders": {
+      "strategy": "Strategy",
+      "carbon": "Carbon",
+      "cost": "Cost",
+      "duration": "Duration",
+      "match": "Match"
+    }
+  },
+  "labels": {
+    "LOW_CARBON": "Low Carbon",
+    "BALANCED": "Balanced",
+    "LOW_COST": "Low Cost",
+    "TIME_EFFICIENT": "Time Efficient",
+    "PREFERENCE_FOCUSED": "Preference Focused"
+  },
+  "hotels": {
+    "findingPlaces": "Finding places to stay…",
+    "listingsUnavailable": "Hotel listings are temporarily unavailable.",
+    "kmFromCenter": "{distance} km from center",
+    "tierSuffix": "{tier} tier",
+    "perNight": "/night",
+    "total": "total",
+    "savedToTrip": "Saved to your trip",
+    "cancel": "Cancel",
+    "payConfirm": "Pay & confirm",
+    "noPaymentTooltip": "No payment provider is connected yet",
+    "reserveDemo": "Reserve (demo)",
+    "saving": "Saving…",
+    "couldNotSaveReservation": "Could not save that reservation. Please try again.",
+    "couldNotCancelReservation": "Could not cancel that reservation. Please try again.",
+    "couldNotStartCheckout": "Could not start checkout. Please try again."
+  },
+  "chat": {
+    "assistantName": "EcoRoute Assistant",
+    "chattingAbout": "Chatting about {trip}",
+    "introWithTrip": "Ask about sustainable travel, or about this trip — carbon, cost, hotels, anything.",
+    "introGeneral": "Ask about sustainable travel, or anything else on your mind.",
+    "placeholder": "Ask a question…",
+    "thinking": "Thinking…",
+    "unavailable": "The assistant is temporarily unavailable. Please try again in a moment.",
+    "openLabel": "Open EcoRoute assistant",
+    "closeLabel": "Close",
+    "sendLabel": "Send"
+  },
+  "locationAutocomplete": {
+    "defaultPlaceholder": "Search a city, town, or place…",
+    "noMatches": "No matches found.",
+    "searchUnavailable": "Location search is temporarily unavailable. You can still enter details manually below."
+  }
+}

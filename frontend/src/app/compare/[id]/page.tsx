@@ -6,10 +6,12 @@ import { useParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { ComparisonTable } from '@/components/itinerary/ComparisonTable';
 import { loadTripResult } from '@/lib/tripStore';
+import { useI18n } from '@/i18n/I18nProvider';
 import type { StoredTripResult } from '@/types';
 
 export default function ComparePage() {
   const params = useParams<{ id: string }>();
+  const { t } = useI18n();
   const [trip, setTrip] = useState<StoredTripResult | null | undefined>(undefined);
 
   useEffect(() => {
@@ -23,11 +25,9 @@ export default function ComparePage() {
   if (trip === null) {
     return (
       <main className="mx-auto max-w-2xl animate-fade-in px-4 py-16 text-center">
-        <p className="text-slate-600">
-          We couldn&apos;t find this trip. Trip results are only kept for the current browser session.
-        </p>
+        <p className="text-slate-600">{t('itinerary.notFoundMessage')}</p>
         <Link href="/plan" className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4">
-          Plan a new trip
+          {t('itinerary.planNewTrip')}
         </Link>
       </main>
     );
@@ -41,7 +41,7 @@ export default function ComparePage() {
 
       <div className="mb-8 flex animate-fade-up items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Comparison</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">{t('compare.label')}</p>
           <h1 className="text-2xl font-semibold text-slate-900">
             {request.origin} <span className="text-slate-400">→</span> {request.destination.name}
           </h1>
@@ -51,7 +51,7 @@ export default function ComparePage() {
           className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to recommended
+          {t('compare.backToRecommended')}
         </Link>
       </div>
 

@@ -1,0 +1,179 @@
+{
+  "nav": {
+    "brandTagline": "कार्बन-सजग यात्रा कार्यक्रम",
+    "tripPlanner": "यात्रा योजनाकार",
+    "exploreMap": "मानचित्र देखें",
+    "generateItinerary": "यात्रा कार्यक्रम बनाएं"
+  },
+  "footer": {
+    "org": "इकोरूट परियोजना",
+    "tagline": "— बहु-उद्देश्यीय कार्बन अनुकूलन ढांचा",
+    "compliance": "DEFRA 2023 और ICAO ग्रीनहाउस गैस लेखांकन मानकों के अनुरूप।"
+  },
+  "home": {
+    "badge": "NSGA-II · DEFRA 2023 · Gemini द्वारा व्याख्या",
+    "headingBefore": "ऐसी यात्राएं बनाएं जो ",
+    "headingHighlight": "कार्बन",
+    "headingAfter": " को उतना ही महत्व दें जितना लागत को",
+    "subheading": "इकोरूट संभावित यात्रा कार्यक्रम तैयार करता है, उन्हें कार्बन, लागत, समय और आपकी प्राथमिकताओं के आधार पर बहु-उद्देश्यीय अनुकूलन से रैंक करता है, और हर सिफारिश को सरल भाषा में समझाता है।",
+    "cta": "यात्रा की योजना बनाएं",
+    "features": [
+      {
+        "title": "बहु-उद्देश्यीय अनुकूलन",
+        "description": "NSGA-II पैरेटो रैंकिंग एक ही चरण में कार्बन, लागत, समय और आपकी प्राथमिकता को संतुलित करती है।"
+      },
+      {
+        "title": "वास्तविक उत्सर्जन कारक",
+        "description": "DEFRA 2023 और ICAO स्रोत के आंकड़े, अनुमान नहीं — हर संख्या सत्यापन योग्य है।"
+      },
+      {
+        "title": "सरल भाषा में व्याख्या",
+        "description": "एक LLM गणना किए गए आंकड़ों को हर विकल्प के लिए 2-3 वाक्यों के तर्क में बदल देता है।"
+      }
+    ]
+  },
+  "plan": {
+    "title": "यात्रा की योजना बनाएं",
+    "subtitle": "हम संभावित यात्रा कार्यक्रम तैयार करेंगे और उन्हें कार्बन, लागत, समय और आपकी प्राथमिकता के आधार पर रैंक करेंगे।",
+    "defaultError": "आपकी यात्रा की योजना बनाते समय कुछ गड़बड़ हो गई।"
+  },
+  "planForm": {
+    "originLabel": "प्रस्थान स्थान",
+    "originPlaceholder": "अपना प्रस्थान स्थान खोजें…",
+    "destinationLabel": "गंतव्य",
+    "destinationPlaceholder": "गंतव्य खोजें…",
+    "distanceLabel": "दूरी (किमी)",
+    "distanceHintLive": "आपके दोनों बिंदुओं के बीच वास्तविक मार्ग से गणना की गई।",
+    "distanceHintFallback": "लाइव रूटिंग उपलब्ध नहीं थी — यह एक सीधी-रेखा अनुमान है। यदि आप वास्तविक यात्रा दूरी जानते हैं, तो इसे मैन्युअल रूप से संपादित करें।",
+    "distanceHintManual": "इसे स्वतः भरने के लिए ऊपर एक प्रस्थान स्थान और गंतव्य चुनें, या इसे सीधे दर्ज करें।",
+    "startDateLabel": "प्रारंभ तिथि",
+    "endDateLabel": "समाप्ति तिथि",
+    "travelersLabel": "यात्रियों की संख्या",
+    "budgetLabel": "बजट (USD, वैकल्पिक)",
+    "budgetPlaceholder": "कोई सीमा नहीं",
+    "transportPrefLabel": "परिवहन प्राथमिकता",
+    "transportOptions": {
+      "any": "कोई भी",
+      "car": "कार",
+      "train": "ट्रेन",
+      "bus": "बस",
+      "flight": "फ्लाइट"
+    },
+    "accommodationPrefLabel": "आवास प्राथमिकता",
+    "accommodationOptions": {
+      "any": "कोई भी",
+      "budget": "बजट",
+      "standard": "स्टैंडर्ड",
+      "eco": "इको-प्रमाणित"
+    },
+    "sustainabilityLabel": "स्थिरता प्राथमिकता",
+    "preferenceOptions": {
+      "eco": "इको",
+      "balanced": "संतुलित",
+      "budget": "बजट",
+      "speed": "तेज़"
+    },
+    "submitting": "आपका यात्रा कार्यक्रम अनुकूलित किया जा रहा है…",
+    "submit": "मेरी यात्रा की योजना बनाएं"
+  },
+  "map": {
+    "title": "मानचित्र देखें",
+    "subtitle": "प्रस्थान स्थान और गंतव्य सेट करने के लिए खोजें या क्लिक करें, फिर वास्तविक मार्ग दूरी देखें।",
+    "fromLabel": "से",
+    "fromPlaceholder": "प्रस्थान स्थान खोजें…",
+    "toLabel": "तक",
+    "toPlaceholder": "गंतव्य खोजें…",
+    "setAsPrompt": "{location} को इस रूप में सेट करें:",
+    "setAsFrom": "प्रस्थान",
+    "setAsTo": "गंतव्य",
+    "locating": "स्थान खोजा जा रहा है…",
+    "clickError": "अभी उस स्थान की पहचान नहीं हो सकी (मानचित्र प्रदाता अनुपलब्ध हो सकता है)। कृपया नाम से खोजने का प्रयास करें।",
+    "showRoute": "मार्ग दिखाएं",
+    "routing": "मार्ग खोजा जा रहा है…",
+    "reset": "रीसेट करें",
+    "planThisTrip": "यह यात्रा योजना बनाएं",
+    "distance": "दूरी",
+    "estimatedTime": "अनुमानित यात्रा समय",
+    "unavailable": "अनुपलब्ध",
+    "source": "स्रोत",
+    "liveRouting": "लाइव रूटिंग (OSRM)",
+    "straightLineEstimate": "सीधी-रेखा अनुमान"
+  },
+  "itinerary": {
+    "notFoundMessage": "हमें यह यात्रा नहीं मिली। यात्रा परिणाम केवल वर्तमान ब्राउज़र सत्र के लिए रखे जाते हैं।",
+    "planNewTrip": "नई यात्रा की योजना बनाएं",
+    "recommended": "अनुशंसित:",
+    "compareAll": "सभी की तुलना करें",
+    "totalCarbon": "कुल कार्बन",
+    "totalCost": "कुल लागत",
+    "duration": "अवधि",
+    "hotelsNear": "{destination} के पास होटल",
+    "accommodationSuffix": "{tier} आवास"
+  },
+  "itineraryTimeline": {
+    "heading": "दिन-प्रतिदिन योजना",
+    "depart": "{mode} द्वारा {origin} से {destination} के लिए प्रस्थान करें।",
+    "stay": "{destination} में ठहरें — {tier} आवास।",
+    "return": "{mode} द्वारा {origin} वापस लौटें।"
+  },
+  "carbonDashboard": {
+    "heading": "कार्बन विवरण",
+    "transport": "परिवहन",
+    "accommodation": "आवास",
+    "activities": "गतिविधियां",
+    "total": "कुल",
+    "emissions": "उत्सर्जन"
+  },
+  "compare": {
+    "label": "तुलना",
+    "backToRecommended": "अनुशंसित पर वापस जाएं",
+    "tableHeaders": {
+      "strategy": "रणनीति",
+      "carbon": "कार्बन",
+      "cost": "लागत",
+      "duration": "अवधि",
+      "match": "मेल"
+    }
+  },
+  "labels": {
+    "LOW_CARBON": "कम कार्बन",
+    "BALANCED": "संतुलित",
+    "LOW_COST": "कम लागत",
+    "TIME_EFFICIENT": "समय-कुशल",
+    "PREFERENCE_FOCUSED": "प्राथमिकता-केंद्रित"
+  },
+  "hotels": {
+    "findingPlaces": "ठहरने की जगहें खोजी जा रही हैं…",
+    "listingsUnavailable": "होटल सूची अस्थायी रूप से अनुपलब्ध है।",
+    "kmFromCenter": "केंद्र से {distance} किमी",
+    "tierSuffix": "{tier} श्रेणी",
+    "perNight": "/रात",
+    "total": "कुल",
+    "savedToTrip": "आपकी यात्रा में सहेजा गया",
+    "cancel": "रद्द करें",
+    "payConfirm": "भुगतान करें और पुष्टि करें",
+    "noPaymentTooltip": "अभी तक कोई भुगतान प्रदाता कनेक्ट नहीं है",
+    "reserveDemo": "आरक्षित करें (डेमो)",
+    "saving": "सहेजा जा रहा है…",
+    "couldNotSaveReservation": "वह आरक्षण सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।",
+    "couldNotCancelReservation": "वह आरक्षण रद्द नहीं किया जा सका। कृपया पुनः प्रयास करें।",
+    "couldNotStartCheckout": "चेकआउट शुरू नहीं हो सका। कृपया पुनः प्रयास करें।"
+  },
+  "chat": {
+    "assistantName": "इकोरूट सहायक",
+    "chattingAbout": "{trip} के बारे में बातचीत",
+    "introWithTrip": "टिकाऊ यात्रा के बारे में पूछें, या इस यात्रा के बारे में — कार्बन, लागत, होटल, कुछ भी।",
+    "introGeneral": "टिकाऊ यात्रा के बारे में पूछें, या अपने मन की कोई भी बात पूछें।",
+    "placeholder": "एक सवाल पूछें…",
+    "thinking": "सोच रहा है…",
+    "unavailable": "सहायक अभी अस्थायी रूप से अनुपलब्ध है। कृपया कुछ समय बाद पुनः प्रयास करें।",
+    "openLabel": "इकोरूट सहायक खोलें",
+    "closeLabel": "बंद करें",
+    "sendLabel": "भेजें"
+  },
+  "locationAutocomplete": {
+    "defaultPlaceholder": "शहर, कस्बा या स्थान खोजें…",
+    "noMatches": "कोई परिणाम नहीं मिला।",
+    "searchUnavailable": "स्थान खोज अभी अस्थायी रूप से अनुपलब्ध है। आप नीचे विवरण मैन्युअल रूप से दर्ज कर सकते हैं।"
+  }
+}

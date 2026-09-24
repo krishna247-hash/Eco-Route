@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Compass, Navigation, RotateCcw, AlertCircle } from 'lucide-react';
 import { LocationAutocomplete } from '@/components/map/LocationAutocomplete';
 import { getRoute, reverseGeocode, type GetRouteResponse, type LocationResult } from '@/lib/locationApi';
+import { useI18n } from '@/i18n/I18nProvider';
 import type L from 'leaflet';
 
 function formatDuration(minutes: number): string {
@@ -15,6 +16,7 @@ function formatDuration(minutes: number): string {
 }
 
 export default function MapPage() {
+  const { t } = useI18n();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const fromMarkerRef = useRef<L.Marker | null>(null);
@@ -45,7 +47,7 @@ export default function MapPage() {
 
       map.on('click', async (e: L.LeafletMouseEvent) => {
         setClickError(null);
-        const tempMarker = L.marker(e.latlng).addTo(map).bindPopup('Locating…').openPopup();
+        const tempMarker = L.marker(e.latlng).addTo(map).bindPopup(t('map.locating')).openPopup();
         try {
           const location = await reverseGeocode(e.latlng.lat, e.latlng.lng);
           tempMarker.setPopupContent(`<strong>${location.name}</strong><br/>${location.displayName}`);
@@ -53,9 +55,7 @@ export default function MapPage() {
           setPendingClickLocation(location);
         } catch {
           map.removeLayer(tempMarker);
-          setClickError(
-            'Could not identify that location right now (the map provider may be unreachable). Try searching by name instead.',
-          );
+          setClickError(t('map.clickError'));
         }
       });
 
@@ -186,43 +186,39 @@ export default function MapPage() {
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900">
             <Compass className="h-5 w-5 text-emerald-600" />
-            Explore the map
+            {t('map.title')}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Search or click to set a starting point and destination, then see a real routed distance.
-          </p>
+          <p className="mt-1 text-sm text-slate-500">{t('map.subtitle')}</p>
         </div>
       </div>
 
       <div className="mb-4 grid animate-fade-up gap-3 sm:grid-cols-2 [animation-delay:60ms]">
         <div>
-          <label className="text-sm font-medium text-slate-700">From</label>
-          <LocationAutocomplete placeholder="Search a starting point…" onSelect={selectFrom} />
+          <label className="text-sm font-medium text-slate-700">{t('map.fromLabel')}</label>
+          <LocationAutocomplete placeholder={t('map.fromPlaceholder')} onSelect={selectFrom} />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">To</label>
-          <LocationAutocomplete placeholder="Search a destination…" onSelect={selectTo} />
+          <label className="text-sm font-medium text-slate-700">{t('map.toLabel')}</label>
+          <LocationAutocomplete placeholder={t('map.toPlaceholder')} onSelect={selectTo} />
         </div>
       </div>
 
       {pendingClickLocation && (
         <div className="mb-4 flex animate-fade-in flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-          <span>
-            Set <strong>{pendingClickLocation.displayName}</strong> as:
-          </span>
+          <span>{t('map.setAsPrompt', { location: pendingClickLocation.displayName })}</span>
           <button
             type="button"
             onClick={() => selectFrom(pendingClickLocation)}
             className="rounded-md border border-emerald-600 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50"
           >
-            From
+            {t('map.setAsFrom')}
           </button>
           <button
             type="button"
             onClick={() => selectTo(pendingClickLocation)}
             className="rounded-md border border-emerald-600 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50"
           >
-            To
+            {t('map.setAsTo')}
           </button>
         </div>
       )}
@@ -246,7 +242,7 @@ export default function MapPage() {
           className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Navigation className="h-3.5 w-3.5" />
-          {routing ? 'Routing…' : 'Show route'}
+          {routing ? t('map.routing') : t('map.showRoute')}
         </button>
         <button
           type="button"
@@ -254,14 +250,14 @@ export default function MapPage() {
           className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
         >
           <RotateCcw className="h-3.5 w-3.5" />
-          Reset
+          {t('map.reset')}
         </button>
         {from && to && (
           <Link
             href={`/plan?${planParams.toString()}`}
             className="ml-auto flex items-center gap-1.5 rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
           >
-            Plan this trip
+            {t('map.planThisTrip')}
           </Link>
         )}
       </div>
@@ -269,18 +265,18 @@ export default function MapPage() {
       {route && primaryRoute && (
         <div className="mt-4 animate-fade-up rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500">Distance</span>
+            <span className="text-slate-500">{t('map.distance')}</span>
             <strong className="text-slate-900">{primaryRoute.distanceKm.toFixed(1)} km</strong>
           </div>
           <div className="mt-1.5 flex items-center justify-between text-sm">
-            <span className="text-slate-500">Estimated travel time</span>
+            <span className="text-slate-500">{t('map.estimatedTime')}</span>
             <strong className="text-slate-900">
-              {primaryRoute.durationMin != null ? formatDuration(primaryRoute.durationMin) : 'Unavailable'}
+              {primaryRoute.durationMin != null ? formatDuration(primaryRoute.durationMin) : t('map.unavailable')}
             </strong>
           </div>
           <div className="mt-1.5 flex items-center justify-between text-sm">
-            <span className="text-slate-500">Source</span>
-            <strong className="text-slate-900">{route.ok ? 'Live routing (OSRM)' : 'Straight-line estimate'}</strong>
+            <span className="text-slate-500">{t('map.source')}</span>
+            <strong className="text-slate-900">{route.ok ? t('map.liveRouting') : t('map.straightLineEstimate')}</strong>
           </div>
           {notice && <p className="mt-2 text-xs text-amber-700">{notice}</p>}
         </div>

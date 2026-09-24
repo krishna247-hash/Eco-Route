@@ -76,6 +76,35 @@ def test_chat_reply_includes_trip_context_in_system_instruction(monkeypatch):
     assert "never invent" in system_instruction.lower()
 
 
+def test_chat_reply_defaults_to_english_instruction(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    messages = [{"role": "user", "content": "Hello"}]
+
+    with patch("app.core.llm_client.genai.Client") as mock_client_cls:
+        mock_chat = mock_client_cls.return_value.chats.create.return_value
+        mock_chat.send_message.return_value = _fake_response("Hi there.")
+
+        llm_client.chat_reply(messages, None)
+
+    _, kwargs = mock_client_cls.return_value.chats.create.call_args
+    assert "Reply in English." in kwargs["config"].system_instruction
+
+
+def test_chat_reply_with_hindi_locale_instructs_hindi_reply(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    messages = [{"role": "user", "content": "मेरी यात्रा के बारे में बताएं"}]
+
+    with patch("app.core.llm_client.genai.Client") as mock_client_cls:
+        mock_chat = mock_client_cls.return_value.chats.create.return_value
+        mock_chat.send_message.return_value = _fake_response("आपकी यात्रा लंदन से पेरिस है।")
+
+        result = llm_client.chat_reply(messages, TRIP_CONTEXT, locale="hi")
+
+    assert result == "आपकी यात्रा लंदन से पेरिस है।"
+    _, kwargs = mock_client_cls.return_value.chats.create.call_args
+    assert "Reply in Hindi" in kwargs["config"].system_instruction
+
+
 def test_chat_reply_without_trip_context_says_so(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     messages = [{"role": "user", "content": "What's a low-carbon way to travel?"}]

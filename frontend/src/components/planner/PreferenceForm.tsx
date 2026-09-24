@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { MapPin, Route, Calendar, Users, Wallet, Loader2, Navigation, Hotel, Gauge } from 'lucide-react';
 import { LocationAutocomplete } from '@/components/map/LocationAutocomplete';
 import { getRoute, type LocationResult } from '@/lib/locationApi';
+import { useI18n } from '@/i18n/I18nProvider';
 import type {
   AccommodationTierFilter,
   PlanTripRequest,
@@ -17,27 +18,12 @@ interface PreferenceFormProps {
   submitting: boolean;
 }
 
-const PREFERENCES: { value: TravelPreference; label: string; emoji: string }[] = [
-  { value: 'eco', label: 'Eco', emoji: '🌿' },
-  { value: 'balanced', label: 'Balanced', emoji: '⚖️' },
-  { value: 'budget', label: 'Budget', emoji: '💰' },
-  { value: 'speed', label: 'Speed', emoji: '⚡' },
-];
-
-const TRANSPORT_OPTIONS: { value: TransportModeFilter | ''; label: string }[] = [
-  { value: '', label: 'Any' },
-  { value: 'car', label: 'Car' },
-  { value: 'train', label: 'Train' },
-  { value: 'bus', label: 'Bus' },
-  { value: 'flight', label: 'Flight' },
-];
-
-const ACCOMMODATION_OPTIONS: { value: AccommodationTierFilter | ''; label: string }[] = [
-  { value: '', label: 'Any' },
-  { value: 'budget', label: 'Budget' },
-  { value: 'standard', label: 'Standard' },
-  { value: 'eco', label: 'Eco-certified' },
-];
+const PREFERENCE_EMOJI: Record<TravelPreference, string> = {
+  eco: '🌿',
+  balanced: '⚖️',
+  budget: '💰',
+  speed: '⚡',
+};
 
 const inputClass =
   'mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
@@ -55,6 +41,30 @@ function Field({ label, icon, children }: { label: string; icon: ReactNode; chil
 }
 
 export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
+  const { t } = useI18n();
+
+  const PREFERENCES: { value: TravelPreference; label: string; emoji: string }[] = [
+    { value: 'eco', label: t('planForm.preferenceOptions.eco'), emoji: PREFERENCE_EMOJI.eco },
+    { value: 'balanced', label: t('planForm.preferenceOptions.balanced'), emoji: PREFERENCE_EMOJI.balanced },
+    { value: 'budget', label: t('planForm.preferenceOptions.budget'), emoji: PREFERENCE_EMOJI.budget },
+    { value: 'speed', label: t('planForm.preferenceOptions.speed'), emoji: PREFERENCE_EMOJI.speed },
+  ];
+
+  const TRANSPORT_OPTIONS: { value: TransportModeFilter | ''; label: string }[] = [
+    { value: '', label: t('planForm.transportOptions.any') },
+    { value: 'car', label: t('planForm.transportOptions.car') },
+    { value: 'train', label: t('planForm.transportOptions.train') },
+    { value: 'bus', label: t('planForm.transportOptions.bus') },
+    { value: 'flight', label: t('planForm.transportOptions.flight') },
+  ];
+
+  const ACCOMMODATION_OPTIONS: { value: AccommodationTierFilter | ''; label: string }[] = [
+    { value: '', label: t('planForm.accommodationOptions.any') },
+    { value: 'budget', label: t('planForm.accommodationOptions.budget') },
+    { value: 'standard', label: t('planForm.accommodationOptions.standard') },
+    { value: 'eco', label: t('planForm.accommodationOptions.eco') },
+  ];
+
   // Prefilled synchronously (not via useEffect) from the interactive map
   // page's "Plan this trip" link, if present, so LocationAutocomplete's
   // initialValue is correct on its very first render.
@@ -136,19 +146,23 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Origin" icon={<MapPin className="h-3.5 w-3.5" />}>
-          <LocationAutocomplete initialValue={origin} placeholder="Search your starting point…" onSelect={handleSelectOrigin} />
+        <Field label={t('planForm.originLabel')} icon={<MapPin className="h-3.5 w-3.5" />}>
+          <LocationAutocomplete
+            initialValue={origin}
+            placeholder={t('planForm.originPlaceholder')}
+            onSelect={handleSelectOrigin}
+          />
         </Field>
-        <Field label="Destination" icon={<MapPin className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.destinationLabel')} icon={<MapPin className="h-3.5 w-3.5" />}>
           <LocationAutocomplete
             initialValue={destinationName}
-            placeholder="Search a destination…"
+            placeholder={t('planForm.destinationPlaceholder')}
             onSelect={handleSelectDestination}
           />
         </Field>
       </div>
 
-      <Field label="Distance (km)" icon={<Route className="h-3.5 w-3.5" />}>
+      <Field label={t('planForm.distanceLabel')} icon={<Route className="h-3.5 w-3.5" />}>
         <div className="relative">
           <input
             required
@@ -167,15 +181,14 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
         </div>
         <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
           <Gauge className="h-3 w-3" />
-          {distanceSource === 'live-route' && 'Computed from a live route between your two points.'}
-          {distanceSource === 'straight-line' &&
-            'Live routing was unavailable — this is a straight-line estimate. Edit it manually if you know the real travel distance.'}
-          {distanceSource === 'manual' && 'Select an origin and destination above to auto-fill this, or enter it directly.'}
+          {distanceSource === 'live-route' && t('planForm.distanceHintLive')}
+          {distanceSource === 'straight-line' && t('planForm.distanceHintFallback')}
+          {distanceSource === 'manual' && t('planForm.distanceHintManual')}
         </p>
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Start date" icon={<Calendar className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.startDateLabel')} icon={<Calendar className="h-3.5 w-3.5" />}>
           <input
             required
             type="date"
@@ -184,7 +197,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
             className={inputClass}
           />
         </Field>
-        <Field label="End date" icon={<Calendar className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.endDateLabel')} icon={<Calendar className="h-3.5 w-3.5" />}>
           <input
             required
             type="date"
@@ -196,7 +209,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Travelers" icon={<Users className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.travelersLabel')} icon={<Users className="h-3.5 w-3.5" />}>
           <input
             required
             type="number"
@@ -206,20 +219,20 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
             className={inputClass}
           />
         </Field>
-        <Field label="Budget (USD, optional)" icon={<Wallet className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.budgetLabel')} icon={<Wallet className="h-3.5 w-3.5" />}>
           <input
             type="number"
             min={0}
             value={budgetUsd}
             onChange={(e) => setBudgetUsd(e.target.value === '' ? '' : Number(e.target.value))}
             className={inputClass}
-            placeholder="No limit"
+            placeholder={t('planForm.budgetPlaceholder')}
           />
         </Field>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Transportation preference" icon={<Navigation className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.transportPrefLabel')} icon={<Navigation className="h-3.5 w-3.5" />}>
           <select
             value={transportModeFilter}
             onChange={(e) => setTransportModeFilter(e.target.value as TransportModeFilter | '')}
@@ -232,7 +245,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
             ))}
           </select>
         </Field>
-        <Field label="Accommodation preference" icon={<Hotel className="h-3.5 w-3.5" />}>
+        <Field label={t('planForm.accommodationPrefLabel')} icon={<Hotel className="h-3.5 w-3.5" />}>
           <select
             value={accommodationTierFilter}
             onChange={(e) => setAccommodationTierFilter(e.target.value as AccommodationTierFilter | '')}
@@ -248,7 +261,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       </div>
 
       <div>
-        <span className="block text-sm font-medium text-slate-700">Sustainability preference</span>
+        <span className="block text-sm font-medium text-slate-700">{t('planForm.sustainabilityLabel')}</span>
         <div className="mt-2 grid grid-cols-4 gap-2">
           {PREFERENCES.map((option) => {
             const active = preference === option.value;
@@ -279,7 +292,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       >
         <span className="relative flex items-center justify-center gap-2">
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {submitting ? 'Optimizing your itinerary…' : 'Plan my trip'}
+          {submitting ? t('planForm.submitting') : t('planForm.submit')}
         </span>
       </button>
     </form>

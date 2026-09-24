@@ -22,6 +22,7 @@ class TripContext(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(min_length=1)
     trip_context: TripContext | None = None
+    locale: Literal["en", "hi"] = "en"
 
     @model_validator(mode="after")
     def _last_message_is_from_user(self) -> "ChatRequest":
