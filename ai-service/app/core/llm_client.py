@@ -12,7 +12,7 @@ import time
 
 from google import genai
 from google.genai import errors
-from google.genai.types import FinishReason, GenerateContentConfig, ThinkingConfig
+from google.genai.types import Content, FinishReason, GenerateContentConfig, Part, ThinkingConfig
 
 _MAX_RETRIES = 2
 _RETRY_DELAY_SECONDS = 3
@@ -22,6 +22,32 @@ _RETRY_DELAY_SECONDS = 3
 # a much more generous free-tier allowance and worked reliably in testing.
 _MODEL = "gemini-3.1-flash-lite"
 _MAX_OUTPUT_TOKENS_PER_OPTION = 250
+
+_CHAT_MAX_OUTPUT_TOKENS = 300
+# Bounds free-tier token/request usage per chat turn -- older turns beyond
+# this are dropped rather than sent, since the model doesn't need the full
+# history to have a coherent conversation over a short session.
+_CHAT_MAX_HISTORY_MESSAGES = 12
+
+_CHAT_SYSTEM_INSTRUCTION = (
+    "You are the EcoRoute travel assistant, embedded in a carbon-aware trip "
+    "planning app. Help travelers with sustainable travel questions and "
+    "questions about their EcoRoute trip.\n\n"
+    "STRICT RULES:\n"
+    "- If trip context is provided below, use ONLY those numbers when "
+    "discussing that trip. Never invent, estimate, or recalculate a carbon, "
+    "cost, or duration figure.\n"
+    "- If no trip context is provided, or the traveler asks about something "
+    "outside it, answer generally but never invent trip-specific numbers.\n"
+    "- Hotel listings and prices shown in this app are demo data, not a "
+    "live inventory -- if asked, say so plainly rather than implying a "
+    "hotel can actually be booked at that price.\n"
+    "- No live payment provider is connected in this app -- if asked about "
+    "paying or booking, say so rather than implying it will work.\n"
+    "- Stay focused on travel, sustainability, and this app; for unrelated "
+    "requests, briefly say that's outside what you can help with here.\n"
+    "- Keep replies concise: 2-4 sentences unless the traveler asks for more detail."
+)
 
 
 def _client() -> genai.Client:
@@ -114,3 +140,75 @@ def explain_recommendations(options: list[dict], comparison_baseline: dict) -> d
         raise RuntimeError(f"LLM returned invalid JSON: {exc}") from exc
 
     return {str(key): str(value).strip() for key, value in explanations.items()}
+
+
+def _format_trip_context(trip_context: dict | None) -> str:
+    if not trip_context:
+        return "No trip context is available for this conversation."
+
+    lines = [
+        f"- Origin: {trip_context['origin']}",
+        f"- Destination: {trip_context['destination']}",
+        f"- Nights: {trip_context['nights']}",
+        f"- Sustainability preference: {trip_context['preference']}",
+    ]
+    if trip_context.get("recommended_transport_mode"):
+        lines.append(f"- Recommended transport: {trip_context['recommended_transport_mode']}")
+    if trip_context.get("recommended_accommodation_tier"):
+        lines.append(f"- Recommended accommodation tier: {trip_context['recommended_accommodation_tier']}")
+    if trip_context.get("recommended_carbon_kg") is not None:
+        lines.append(f"- Recommended option's total carbon: {trip_context['recommended_carbon_kg']:.1f} kg CO2e")
+    if trip_context.get("recommended_cost_usd") is not None:
+        lines.append(f"- Recommended option's total cost: ${trip_context['recommended_cost_usd']:.2f}")
+    return "Current trip context:\n" + "\n".join(lines)
+
+
+def chat_reply(messages: list[dict], trip_context: dict | None) -> str:
+    """Multi-turn chat reply. `messages` is the full conversation so far,
+    each `{"role": "user"|"assistant", "content": str}`, ending with the
+    newest user message. Stateless by design (the caller holds history,
+    same as explain_recommendations doesn't hold state) -- there is no
+    server-side session to leak between users.
+    """
+    if not messages or messages[-1]["role"] != "user":
+        raise ValueError("messages must be non-empty and end with a user message")
+
+    bounded = messages[-_CHAT_MAX_HISTORY_MESSAGES:]
+    history = [
+        Content(role="model" if m["role"] == "assistant" else "user", parts=[Part(text=m["content"])])
+        for m in bounded[:-1]
+    ]
+    latest = bounded[-1]["content"]
+
+    system_instruction = f"{_CHAT_SYSTEM_INSTRUCTION}\n\n{_format_trip_context(trip_context)}"
+    config = GenerateContentConfig(
+        temperature=0.4,
+        max_output_tokens=_CHAT_MAX_OUTPUT_TOKENS,
+        thinking_config=ThinkingConfig(thinking_budget=0),
+        system_instruction=system_instruction,
+    )
+
+    response = None
+    last_exc: errors.APIError | None = None
+    for attempt in range(_MAX_RETRIES + 1):
+        try:
+            chat = _client().chats.create(model=_MODEL, config=config, history=history)
+            response = chat.send_message(latest)
+            break
+        except errors.ServerError as exc:
+            last_exc = exc
+            if attempt < _MAX_RETRIES:
+                time.sleep(_RETRY_DELAY_SECONDS)
+        except errors.APIError as exc:
+            raise RuntimeError(f"Chat request failed: {exc}") from exc
+
+    if response is None:
+        raise RuntimeError(f"Chat request failed after {_MAX_RETRIES + 1} attempts: {last_exc}")
+
+    candidates = response.candidates or []
+    finish_reason = candidates[0].finish_reason if candidates else None
+    acceptable = (FinishReason.STOP, FinishReason.MAX_TOKENS, None)
+    if finish_reason not in acceptable:
+        raise RuntimeError(f"LLM declined to reply (finish_reason={finish_reason})")
+
+    return (response.text or "").strip()

@@ -99,3 +99,30 @@ export async function optimizeCandidates(candidates: CandidateItinerary[]): Prom
 export function recommend(candidates: CandidateItinerary[]): Promise<RecommendResponse> {
   return postJson<RecommendResponse>("/v1/recommend", { candidates });
 }
+
+export type ChatRole = "user" | "assistant";
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+}
+
+export interface ChatTripContext {
+  origin: string;
+  destination: string;
+  nights: number;
+  preference: string;
+  recommended_transport_mode?: string | null;
+  recommended_accommodation_tier?: string | null;
+  recommended_carbon_kg?: number | null;
+  recommended_cost_usd?: number | null;
+}
+
+export interface ChatRequest {
+  messages: ChatMessage[];
+  trip_context?: ChatTripContext | null;
+}
+
+export function chat(payload: ChatRequest): Promise<{ reply: string }> {
+  return postJson<{ reply: string }>("/v1/chat", payload);
+}

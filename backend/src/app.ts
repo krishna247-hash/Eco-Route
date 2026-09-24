@@ -7,6 +7,7 @@ import { routingRouter } from "./routes/routing.routes";
 import { hotelsRouter } from "./routes/hotels.routes";
 import { bookingsRouter } from "./routes/bookings.routes";
 import { paymentsRouter } from "./routes/payments.routes";
+import { chatRouter } from "./routes/chat.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 export const app = express();
@@ -25,5 +26,6 @@ app.use("/api/v1/routing", routingRouter);
 app.use("/api/v1/hotels", hotelsRouter);
 app.use("/api/v1/bookings", bookingsRouter);
 app.use("/api/v1/payments", paymentsRouter);
+app.use("/api/v1/chat", chatRouter);
 
 app.use(errorMiddleware);

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Link from 'next/link';
 import { Leaf, Compass, Map, Sparkles } from 'lucide-react';
+import { ChatWidget } from '@/components/chat/ChatWidget';
 
 export const metadata: Metadata = {
   title: 'EcoRoute | AI-Driven Sustainable Travel Planning',
@@ -79,6 +80,8 @@ export default function RootLayout({
             </p>
           </div>
         </footer>
+
+        <ChatWidget />
       </body>
     </html>
   );

@@ -137,3 +137,50 @@ describe("GET /api/v1/hotels/search", () => {
     assert.ok(response.body.hotels.length > 0);
   });
 });
+
+describe("POST /api/v1/chat", () => {
+  function authedChat() {
+    const token = jwt.sign({ sub: "test-user-id" }, TEST_JWT_SECRET, { expiresIn: "1h" });
+    return request(app).post("/api/v1/chat").set("Authorization", `Bearer ${token}`);
+  }
+
+  it("rejects an unauthenticated request with 401", async () => {
+    const response = await request(app)
+      .post("/api/v1/chat")
+      .send({ messages: [{ role: "user", content: "hi" }] });
+    assert.equal(response.status, 401);
+  });
+
+  it("rejects an empty messages array with 400", async () => {
+    const response = await authedChat().send({ messages: [] });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects a message with an invalid role with 400", async () => {
+    const response = await authedChat().send({ messages: [{ role: "system", content: "hi" }] });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects a message with empty content with 400", async () => {
+    const response = await authedChat().send({ messages: [{ role: "user", content: "" }] });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects when the last message isn't from the user with 400", async () => {
+    const response = await authedChat().send({
+      messages: [
+        { role: "user", content: "hi" },
+        { role: "assistant", content: "hello" },
+      ],
+    });
+    assert.equal(response.status, 400);
+  });
+
+  it("rejects an incomplete tripContext with 400", async () => {
+    const response = await authedChat().send({
+      messages: [{ role: "user", content: "hi" }],
+      tripContext: { origin: "London" },
+    });
+    assert.equal(response.status, 400);
+  });
+});

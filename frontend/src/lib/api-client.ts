@@ -134,6 +134,39 @@ export async function isPaymentConfigured(): Promise<boolean> {
 
 export class PaymentNotConfiguredError extends Error {}
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatTripContext {
+  origin: string;
+  destination: string;
+  nights: number;
+  preference: string;
+  recommended_transport_mode?: string | null;
+  recommended_accommodation_tier?: string | null;
+  recommended_carbon_kg?: number | null;
+  recommended_cost_usd?: number | null;
+}
+
+export async function sendChatMessage(
+  messages: ChatMessage[],
+  tripContext?: ChatTripContext | null,
+): Promise<string> {
+  const response = await authedFetch('/api/v1/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, tripContext: tripContext ?? undefined }),
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Chat request failed (${response.status}): ${detail}`);
+  }
+  const data = (await response.json()) as { reply: string };
+  return data.reply;
+}
+
 export async function createCheckoutSession(input: {
   bookingId: string;
   successUrl: string;
