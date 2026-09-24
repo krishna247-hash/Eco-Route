@@ -48,6 +48,10 @@ export interface HotelListing {
   rating: number;
   distanceFromCenterKm: number;
   amenities: string[];
+  /** A real photo, only present when the matching OSM venue itself
+   * carries a `wikimedia_commons=File:...` tag -- never a stock photo
+   * substituted in for venues (real or synthetic) that don't have one. */
+  photoUrl?: string;
 }
 
 export interface HotelSearchResult {
@@ -124,6 +128,7 @@ interface HotelIdentity {
   key: string;
   name: string;
   distanceFromCenterKm?: number;
+  photoUrl?: string;
 }
 
 function buildListing(identity: HotelIdentity, tier: AccommodationTier, nights: number): HotelListing {
@@ -151,6 +156,7 @@ function buildListing(identity: HotelIdentity, tier: AccommodationTier, nights: 
     rating,
     distanceFromCenterKm: Math.round(distanceFromCenterKm * 10) / 10,
     amenities,
+    photoUrl: identity.photoUrl,
   };
 }
 
@@ -179,6 +185,21 @@ export class DemoHotelProvider implements HotelProvider {
 }
 
 /* ---- OpenStreetMap-backed identities, via the free/keyless Overpass API ---- */
+
+const WIKIMEDIA_COMMONS_FILE_PREFIX = "File:";
+
+/** Turns an OSM `wikimedia_commons=File:...` tag into a real, directly
+ * loadable photo URL via Commons' Special:FilePath redirect -- no extra
+ * API call or lookup needed. Category: tags and anything else are left
+ * alone (never guessed at) since there's no single photo to point to. */
+function wikimediaPhotoUrl(wikimediaCommonsTag: string | undefined): string | undefined {
+  if (!wikimediaCommonsTag?.startsWith(WIKIMEDIA_COMMONS_FILE_PREFIX)) {
+    return undefined;
+  }
+  const filename = wikimediaCommonsTag.slice(WIKIMEDIA_COMMONS_FILE_PREFIX.length);
+  if (!filename) return undefined;
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(filename)}?width=800`;
+}
 
 interface OverpassElement {
   type: "node" | "way" | "relation";
@@ -224,6 +245,7 @@ async function fetchOsmHotelIdentities(lat: number, lon: number): Promise<HotelI
       key: `osm-${el.type}-${el.id}`,
       name,
       distanceFromCenterKm: haversineKm(lat, lon, elLat, elLon),
+      photoUrl: wikimediaPhotoUrl(el.tags?.wikimedia_commons),
     });
   }
   return identities;

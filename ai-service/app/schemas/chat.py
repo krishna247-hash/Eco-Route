@@ -17,6 +17,7 @@ class TripContext(BaseModel):
     recommended_accommodation_tier: str | None = None
     recommended_carbon_kg: float | None = None
     recommended_cost_usd: float | None = None
+    recommended_cost_inr_formatted: str | None = None
 
 
 class ChatRequest(BaseModel):

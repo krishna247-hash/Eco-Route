@@ -49,8 +49,9 @@
     "startDateLabel": "Start date",
     "endDateLabel": "End date",
     "travelersLabel": "Travelers",
-    "budgetLabel": "Budget (USD, optional)",
+    "budgetLabel": "Budget (₹, optional)",
     "budgetPlaceholder": "No limit",
+    "budgetRateUnavailable": "Unavailable (no live exchange rate)",
     "transportPrefLabel": "Transportation preference",
     "transportOptions": {
       "any": "Any",
@@ -123,6 +124,17 @@
     "activities": "Activities",
     "total": "Total",
     "emissions": "Emissions"
+  },
+  "costDashboard": {
+    "heading": "Cost breakdown",
+    "transport": "Transport",
+    "accommodation": "Accommodation",
+    "activities": "Activities",
+    "total": "Total",
+    "amount": "Amount"
+  },
+  "currency": {
+    "liveRateUnavailable": "{usd} (live rate unavailable)"
   },
   "compare": {
     "label": "Comparison",

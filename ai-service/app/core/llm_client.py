@@ -158,7 +158,9 @@ def _format_trip_context(trip_context: dict | None) -> str:
         lines.append(f"- Recommended accommodation tier: {trip_context['recommended_accommodation_tier']}")
     if trip_context.get("recommended_carbon_kg") is not None:
         lines.append(f"- Recommended option's total carbon: {trip_context['recommended_carbon_kg']:.1f} kg CO2e")
-    if trip_context.get("recommended_cost_usd") is not None:
+    if trip_context.get("recommended_cost_inr_formatted"):
+        lines.append(f"- Recommended option's total cost: {trip_context['recommended_cost_inr_formatted']}")
+    elif trip_context.get("recommended_cost_usd") is not None:
         lines.append(f"- Recommended option's total cost: ${trip_context['recommended_cost_usd']:.2f}")
     return "Current trip context:\n" + "\n".join(lines)
 

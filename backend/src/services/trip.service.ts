@@ -112,6 +112,7 @@ export async function planTrip(userId: string, input: PlanTripInput) {
         accommodationTier: option.accommodation_tier,
         carbon: option.carbon,
         costUsd: option.cost_usd,
+        costBreakdown: option.cost_breakdown,
         durationHrs: option.duration_hrs,
         preferenceScore: option.preference_score,
         explanation: option.explanation,

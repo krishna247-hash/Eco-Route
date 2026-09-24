@@ -73,6 +73,7 @@ def generate_candidates(trip_input: dict) -> list[dict]:
             accommodation_cost = tier["cost_per_night_usd"] * nights
             activity_cost = ACTIVITY_COST_PER_HOUR_USD * activity_hours
             transport_duration_hrs = distance_km / transport_profile["speed_kmh"]
+            total_cost = transport_cost + accommodation_cost + activity_cost
 
             candidates.append(
                 {
@@ -80,7 +81,13 @@ def generate_candidates(trip_input: dict) -> list[dict]:
                     "transport_mode": mode,
                     "accommodation_tier": tier_key,
                     "carbon": carbon,
-                    "cost_usd": round(transport_cost + accommodation_cost + activity_cost, 2),
+                    "cost_usd": round(total_cost, 2),
+                    "cost_breakdown": {
+                        "transport_usd": round(transport_cost, 2),
+                        "accommodation_usd": round(accommodation_cost, 2),
+                        "activity_usd": round(activity_cost, 2),
+                        "total_usd": round(total_cost, 2),
+                    },
                     "duration_hrs": round(transport_duration_hrs + activity_hours, 2),
                 }
             )

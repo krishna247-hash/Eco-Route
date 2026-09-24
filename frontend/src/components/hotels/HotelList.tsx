@@ -13,6 +13,7 @@ import {
   type Booking,
 } from '@/lib/api-client';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useCurrency } from '@/lib/CurrencyProvider';
 
 interface HotelListProps {
   tripId: string;
@@ -38,6 +39,7 @@ export function HotelList({
   tier,
 }: HotelListProps) {
   const { t } = useI18n();
+  const { formatInr } = useCurrency();
   const [hotels, setHotels] = useState<HotelListing[] | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +49,8 @@ export function HotelList({
   const [actionError, setActionError] = useState<string | null>(null);
   const [paymentNotice, setPaymentNotice] = useState<string | null>(null);
   const [paymentConfigured, setPaymentConfigured] = useState(true); // optimistic default; corrected below
+  // hotelIds whose photoUrl failed to load -- hidden rather than shown broken.
+  const [brokenPhotoIds, setBrokenPhotoIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -192,71 +196,83 @@ export function HotelList({
           const booking = bookings[hotel.id];
           const isPending = pendingHotelId === hotel.id;
           return (
-            <div key={hotel.id} className="card-hover rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="mb-1 flex items-start justify-between gap-2">
-                <h3 className="text-sm font-semibold text-slate-900">{hotel.name}</h3>
-                <span className="flex flex-none items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
-                  <Star className="h-3 w-3 fill-current" />
-                  {hotel.rating.toFixed(1)}
-                </span>
-              </div>
-              <p className="mb-2 flex items-center gap-1 text-xs text-slate-500">
-                <MapPin className="h-3 w-3" />
-                {t('hotels.kmFromCenter', { distance: hotel.distanceFromCenterKm.toFixed(1) })} ·{' '}
-                {t('hotels.tierSuffix', { tier: t(`planForm.accommodationOptions.${hotel.tier}`) })}
-              </p>
-              <div className="mb-2 flex flex-wrap gap-1">
-                {hotel.amenities.map((amenity) => (
-                  <span key={amenity} className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">
-                    {amenity}
+            <div key={hotel.id} className="card-hover overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              {hotel.photoUrl && !brokenPhotoIds.has(hotel.id) && (
+                // eslint-disable-next-line @next/next/no-img-element -- a single external Commons domain, not worth next/image's remote-pattern config
+                <img
+                  src={hotel.photoUrl}
+                  alt={hotel.name}
+                  loading="lazy"
+                  className="h-36 w-full object-cover"
+                  onError={() => setBrokenPhotoIds((prev) => new Set(prev).add(hotel.id))}
+                />
+              )}
+              <div className="p-4">
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-slate-900">{hotel.name}</h3>
+                  <span className="flex flex-none items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-700">
+                    <Star className="h-3 w-3 fill-current" />
+                    {hotel.rating.toFixed(1)}
                   </span>
-                ))}
-              </div>
-              <div className="mb-3 flex items-baseline justify-between">
-                <span className="text-lg font-semibold text-slate-900">${hotel.pricePerNightUsd}</span>
-                <span className="text-xs text-slate-400">
-                  {t('hotels.perNight')} · ${hotel.totalPriceUsd} {t('hotels.total')}
-                </span>
-              </div>
-              {booking ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2">
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
-                      <Check className="h-3.5 w-3.5" />
-                      {t('hotels.savedToTrip')}
+                </div>
+                <p className="mb-2 flex items-center gap-1 text-xs text-slate-500">
+                  <MapPin className="h-3 w-3" />
+                  {t('hotels.kmFromCenter', { distance: hotel.distanceFromCenterKm.toFixed(1) })} ·{' '}
+                  {t('hotels.tierSuffix', { tier: t(`planForm.accommodationOptions.${hotel.tier}`) })}
+                </p>
+                <div className="mb-2 flex flex-wrap gap-1">
+                  {hotel.amenities.map((amenity) => (
+                    <span key={amenity} className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">
+                      {amenity}
                     </span>
+                  ))}
+                </div>
+                <div className="mb-3 flex items-baseline justify-between">
+                  <span className="text-lg font-semibold text-slate-900">{formatInr(hotel.pricePerNightUsd)}</span>
+                  <span className="text-xs text-slate-400">
+                    {t('hotels.perNight')} · {formatInr(hotel.totalPriceUsd)} {t('hotels.total')}
+                  </span>
+                </div>
+                {booking ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-2 rounded-lg bg-emerald-50 px-3 py-2">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                        <Check className="h-3.5 w-3.5" />
+                        {t('hotels.savedToTrip')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCancel(hotel)}
+                        disabled={isPending}
+                        className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-red-600 disabled:opacity-50"
+                      >
+                        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
+                        {t('hotels.cancel')}
+                      </button>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => handleCancel(hotel)}
+                      onClick={() => handlePay(hotel)}
                       disabled={isPending}
-                      className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-red-600 disabled:opacity-50"
+                      title={!paymentConfigured ? t('hotels.noPaymentTooltip') : undefined}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
                     >
-                      {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
-                      {t('hotels.cancel')}
+                      {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
+                      {t('hotels.payConfirm')}
                     </button>
                   </div>
+                ) : (
                   <button
                     type="button"
-                    onClick={() => handlePay(hotel)}
+                    onClick={() => handleReserve(hotel)}
                     disabled={isPending}
-                    title={!paymentConfigured ? t('hotels.noPaymentTooltip') : undefined}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-slate-900 py-2 text-xs font-medium text-white transition-colors hover:bg-slate-800 disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600 py-2 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 disabled:opacity-60"
                   >
-                    {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
-                    {t('hotels.payConfirm')}
+                    {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {isPending ? t('hotels.saving') : t('hotels.reserveDemo')}
                   </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleReserve(hotel)}
-                  disabled={isPending}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-600 py-2 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 disabled:opacity-60"
-                >
-                  {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {isPending ? t('hotels.saving') : t('hotels.reserveDemo')}
-                </button>
-              )}
+                )}
+              </div>
             </div>
           );
         })}

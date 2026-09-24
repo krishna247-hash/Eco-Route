@@ -49,8 +49,9 @@
     "startDateLabel": "प्रारंभ तिथि",
     "endDateLabel": "समाप्ति तिथि",
     "travelersLabel": "यात्रियों की संख्या",
-    "budgetLabel": "बजट (USD, वैकल्पिक)",
+    "budgetLabel": "बजट (₹, वैकल्पिक)",
     "budgetPlaceholder": "कोई सीमा नहीं",
+    "budgetRateUnavailable": "अनुपलब्ध (लाइव विनिमय दर नहीं)",
     "transportPrefLabel": "परिवहन प्राथमिकता",
     "transportOptions": {
       "any": "कोई भी",
@@ -123,6 +124,17 @@
     "activities": "गतिविधियां",
     "total": "कुल",
     "emissions": "उत्सर्जन"
+  },
+  "costDashboard": {
+    "heading": "लागत विवरण",
+    "transport": "परिवहन",
+    "accommodation": "आवास",
+    "activities": "गतिविधियां",
+    "total": "कुल",
+    "amount": "राशि"
+  },
+  "currency": {
+    "liveRateUnavailable": "{usd} (लाइव दर अनुपलब्ध)"
   },
   "compare": {
     "label": "तुलना",

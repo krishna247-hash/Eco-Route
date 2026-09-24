@@ -1,7 +1,8 @@
 'use client';
 
-import { Leaf, Scale, DollarSign, Zap, Target, Car, TrainFront, Bus, Plane } from 'lucide-react';
+import { Leaf, Scale, IndianRupee, Zap, Target, Car, TrainFront, Bus, Plane } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useCurrency } from '@/lib/CurrencyProvider';
 import type { ItineraryLabel, ItineraryOption } from '@/types';
 
 interface ComparisonTableProps {
@@ -11,7 +12,7 @@ interface ComparisonTableProps {
 const LABEL_ICON: Record<ItineraryLabel, typeof Leaf> = {
   LOW_CARBON: Leaf,
   BALANCED: Scale,
-  LOW_COST: DollarSign,
+  LOW_COST: IndianRupee,
   TIME_EFFICIENT: Zap,
   PREFERENCE_FOCUSED: Target,
 };
@@ -33,6 +34,7 @@ const TRANSPORT_ICON: Record<string, typeof Car> = {
 
 export function ComparisonTable({ options }: ComparisonTableProps) {
   const { t } = useI18n();
+  const { formatInr } = useCurrency();
 
   return (
     <div className="space-y-10">
@@ -66,7 +68,7 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
                     <p className="text-[10px] uppercase text-slate-500">kg CO2e</p>
                   </div>
                   <div className="rounded-lg bg-slate-50 py-2">
-                    <p className="text-sm font-semibold text-slate-900">${option.costUsd.toFixed(0)}</p>
+                    <p className="text-sm font-semibold text-slate-900">{formatInr(option.costUsd)}</p>
                     <p className="text-[10px] uppercase text-slate-500">{t('compare.tableHeaders.cost')}</p>
                   </div>
                   <div className="rounded-lg bg-slate-50 py-2">
@@ -126,7 +128,7 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
                     {t(`labels.${option.label}`)}
                   </td>
                   <td className="px-4 py-3 text-slate-700">{option.carbon.total_co2e.toFixed(1)} kg</td>
-                  <td className="px-4 py-3 text-slate-700">${option.costUsd.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-slate-700">{formatInr(option.costUsd)}</td>
                   <td className="px-4 py-3 text-slate-700">{option.durationHrs.toFixed(1)} h</td>
                   <td className="px-4 py-3 text-slate-700">{Math.round(option.preferenceScore * 100)}%</td>
                 </tr>

@@ -6,6 +6,7 @@ import { MapPin, Route, Calendar, Users, Wallet, Loader2, Navigation, Hotel, Gau
 import { LocationAutocomplete } from '@/components/map/LocationAutocomplete';
 import { getRoute, type LocationResult } from '@/lib/locationApi';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useCurrency } from '@/lib/CurrencyProvider';
 import type {
   AccommodationTierFilter,
   PlanTripRequest,
@@ -42,6 +43,7 @@ function Field({ label, icon, children }: { label: string; icon: ReactNode; chil
 
 export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
   const { t } = useI18n();
+  const { rate: currencyRate, loading: currencyLoading } = useCurrency();
 
   const PREFERENCES: { value: TravelPreference; label: string; emoji: string }[] = [
     { value: 'eco', label: t('planForm.preferenceOptions.eco'), emoji: PREFERENCE_EMOJI.eco },
@@ -87,7 +89,7 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [travelers, setTravelers] = useState(1);
-  const [budgetUsd, setBudgetUsd] = useState<number | ''>('');
+  const [budgetInr, setBudgetInr] = useState<number | ''>('');
   const [preference, setPreference] = useState<TravelPreference>('balanced');
   const [transportModeFilter, setTransportModeFilter] = useState<TransportModeFilter | ''>('');
   const [accommodationTierFilter, setAccommodationTierFilter] = useState<AccommodationTierFilter | ''>('');
@@ -135,7 +137,11 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       startDate,
       endDate,
       travelers,
-      budgetUsd: budgetUsd === '' ? undefined : budgetUsd,
+      // budgetInr is entered by the user in rupees; convert to USD (the
+      // unit the ai-service's candidate cost math is denominated in)
+      // using the live rate. If no rate is available at all, the field is
+      // disabled below, so this branch never silently mis-converts.
+      budgetUsd: budgetInr === '' || !currencyRate ? undefined : budgetInr / currencyRate.usdToInr,
       preference,
       activityHours: 4,
       transportModeFilter: transportModeFilter || undefined,
@@ -223,10 +229,13 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
           <input
             type="number"
             min={0}
-            value={budgetUsd}
-            onChange={(e) => setBudgetUsd(e.target.value === '' ? '' : Number(e.target.value))}
+            value={budgetInr}
+            onChange={(e) => setBudgetInr(e.target.value === '' ? '' : Number(e.target.value))}
             className={inputClass}
-            placeholder={t('planForm.budgetPlaceholder')}
+            placeholder={
+              !currencyLoading && !currencyRate ? t('planForm.budgetRateUnavailable') : t('planForm.budgetPlaceholder')
+            }
+            disabled={!currencyLoading && !currencyRate}
           />
         </Field>
       </div>

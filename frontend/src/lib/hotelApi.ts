@@ -12,6 +12,9 @@ export interface HotelListing {
   rating: number;
   distanceFromCenterKm: number;
   amenities: string[];
+  /** A real Wikimedia Commons photo, only present for the OSM venues that
+   * actually carry one -- never a stock substitute for hotels without one. */
+  photoUrl?: string;
 }
 
 export interface HotelSearchResponse {

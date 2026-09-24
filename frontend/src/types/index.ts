@@ -30,6 +30,13 @@ export interface CarbonBreakdown {
   total_co2e: number;
 }
 
+export interface CostBreakdown {
+  transport_usd: number;
+  accommodation_usd: number;
+  activity_usd: number;
+  total_usd: number;
+}
+
 export type ItineraryLabel = 'LOW_CARBON' | 'BALANCED' | 'LOW_COST' | 'TIME_EFFICIENT' | 'PREFERENCE_FOCUSED';
 
 export interface ItineraryOption {
@@ -39,6 +46,7 @@ export interface ItineraryOption {
   accommodationTier: string;
   carbon: CarbonBreakdown;
   costUsd: number;
+  costBreakdown: CostBreakdown;
   durationHrs: number;
   preferenceScore: number;
   explanation: string;

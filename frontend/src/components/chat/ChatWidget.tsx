@@ -6,6 +6,7 @@ import { AlertTriangle, Leaf, Loader2, MessageCircle, Send, X } from 'lucide-rea
 import { sendChatMessage, type ChatMessage, type ChatTripContext } from '@/lib/api-client';
 import { loadTripResult } from '@/lib/tripStore';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useCurrency } from '@/lib/CurrencyProvider';
 
 function nightsBetween(startDate: string, endDate: string): number {
   const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
@@ -17,6 +18,7 @@ function nightsBetween(startDate: string, endDate: string): number {
  * trip -- no shared state/context plumbing needed between pages. */
 function useActiveTripContext(): { tripContext: ChatTripContext | null; label: string | null } {
   const pathname = usePathname();
+  const { formatInr, rate } = useCurrency();
   const [state, setState] = useState<{ tripContext: ChatTripContext | null; label: string | null }>({
     tripContext: null,
     label: null,
@@ -45,10 +47,18 @@ function useActiveTripContext(): { tripContext: ChatTripContext | null; label: s
         recommended_accommodation_tier: recommended.accommodationTier,
         recommended_carbon_kg: recommended.carbon.total_co2e,
         recommended_cost_usd: recommended.costUsd,
+        // Rupee string computed client-side from the live rate the page
+        // already displays, so the assistant quotes the same figure the
+        // user sees rather than the ai-service re-deriving one.
+        recommended_cost_inr_formatted: formatInr(recommended.costUsd),
       },
       label: `${request.origin} → ${request.destination.name}`,
     });
-  }, [pathname]);
+    // `rate` is included so this recomputes once the live exchange rate
+    // finishes loading (it starts null); `formatInr` itself is excluded
+    // since it's a new function identity every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, rate]);
 
   return state;
 }

@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeftRight, Leaf, DollarSign, Clock3, Sparkles, Car, TrainFront, Bus, Plane, Hotel } from 'lucide-react';
+import { ArrowLeftRight, Leaf, IndianRupee, Clock3, Sparkles, Car, TrainFront, Bus, Plane, Hotel } from 'lucide-react';
 import { ItineraryTimeline } from '@/components/itinerary/ItineraryTimeline';
 import { CarbonDashboard } from '@/components/dashboard/CarbonDashboard';
+import { CostDashboard } from '@/components/dashboard/CostDashboard';
 import { HotelList } from '@/components/hotels/HotelList';
 import { loadTripResult } from '@/lib/tripStore';
 import { useI18n } from '@/i18n/I18nProvider';
+import { useCurrency } from '@/lib/CurrencyProvider';
 import type { AccommodationTier } from '@/lib/hotelApi';
 import type { StoredTripResult } from '@/types';
 
@@ -27,6 +29,7 @@ const TRANSPORT_ICON: Record<string, typeof Car> = {
 export default function ItineraryPage() {
   const params = useParams<{ id: string }>();
   const { t } = useI18n();
+  const { formatInr } = useCurrency();
   const [trip, setTrip] = useState<StoredTripResult | null | undefined>(undefined);
 
   useEffect(() => {
@@ -56,13 +59,13 @@ export default function ItineraryPage() {
 
   const STAT_CARDS = [
     { key: 'carbon' as const, label: t('itinerary.totalCarbon'), icon: Leaf, accent: 'text-emerald-600' },
-    { key: 'cost' as const, label: t('itinerary.totalCost'), icon: DollarSign, accent: 'text-teal-600' },
+    { key: 'cost' as const, label: t('itinerary.totalCost'), icon: IndianRupee, accent: 'text-teal-600' },
     { key: 'duration' as const, label: t('itinerary.duration'), icon: Clock3, accent: 'text-sky-600' },
   ];
 
   const statValues: Record<(typeof STAT_CARDS)[number]['key'], string> = {
     carbon: `${recommended.carbon.total_co2e.toFixed(1)} kg`,
-    cost: `$${recommended.costUsd.toFixed(2)}`,
+    cost: formatInr(recommended.costUsd),
     duration: `${recommended.durationHrs.toFixed(1)} h`,
   };
 
@@ -121,6 +124,7 @@ export default function ItineraryPage() {
           nights={nights}
         />
         <CarbonDashboard carbon={recommended.carbon} />
+        <CostDashboard cost={recommended.costBreakdown} />
       </div>
 
       <div className="mt-8">

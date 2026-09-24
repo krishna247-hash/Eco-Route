@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { AppError } from "../utils/AppError";
+import { getUsdToInrRate } from "./currency.service";
 
 /* Payment, via Stripe Checkout: Stripe's own hosted payment page. We
  * create a session server-side and redirect the browser to Stripe's
@@ -43,14 +44,28 @@ export function isPaymentConfigured(): boolean {
 export async function createCheckoutSession(input: CheckoutInput): Promise<{ checkoutUrl: string }> {
   const stripe = getStripeClient();
 
+  // The booking is stored in USD (the unit the ai-service/candidate cost
+  // math is denominated in); charge in rupees using the same live/cached
+  // rate the rest of the app displays, rather than charging in USD while
+  // everything else on the page reads in ₹.
+  let usdToInr: number;
+  try {
+    ({ usdToInr } = await getUsdToInrRate());
+  } catch (err) {
+    throw new AppError(
+      502,
+      `Payment could not be started: no exchange rate is available to charge in rupees (${err instanceof Error ? err.message : "unknown error"}). This booking has not been charged.`,
+    );
+  }
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card"],
     line_items: [
       {
         price_data: {
-          currency: "usd",
-          unit_amount: Math.round(input.totalPriceUsd * 100),
+          currency: "inr",
+          unit_amount: Math.round(input.totalPriceUsd * usdToInr * 100),
           product_data: {
             name: input.hotelName,
             description: `${input.nights} night${input.nights === 1 ? "" : "s"}`,

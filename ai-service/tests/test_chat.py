@@ -76,6 +76,37 @@ def test_chat_reply_includes_trip_context_in_system_instruction(monkeypatch):
     assert "never invent" in system_instruction.lower()
 
 
+def test_chat_reply_prefers_inr_formatted_cost_when_present(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    messages = [{"role": "user", "content": "Summarize my trip"}]
+    trip_context = {**TRIP_CONTEXT, "recommended_cost_inr_formatted": "₹28,500"}
+
+    with patch("app.core.llm_client.genai.Client") as mock_client_cls:
+        mock_chat = mock_client_cls.return_value.chats.create.return_value
+        mock_chat.send_message.return_value = _fake_response("Your trip is London to Paris.")
+
+        llm_client.chat_reply(messages, trip_context)
+
+    _, kwargs = mock_client_cls.return_value.chats.create.call_args
+    system_instruction = kwargs["config"].system_instruction
+    assert "₹28,500" in system_instruction
+    assert "$344.00" not in system_instruction
+
+
+def test_chat_reply_falls_back_to_usd_cost_when_no_inr_formatted_value(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    messages = [{"role": "user", "content": "Summarize my trip"}]
+
+    with patch("app.core.llm_client.genai.Client") as mock_client_cls:
+        mock_chat = mock_client_cls.return_value.chats.create.return_value
+        mock_chat.send_message.return_value = _fake_response("Your trip is London to Paris.")
+
+        llm_client.chat_reply(messages, TRIP_CONTEXT)
+
+    _, kwargs = mock_client_cls.return_value.chats.create.call_args
+    assert "$344.00" in kwargs["config"].system_instruction
+
+
 def test_chat_reply_defaults_to_english_instruction(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     messages = [{"role": "user", "content": "Hello"}]

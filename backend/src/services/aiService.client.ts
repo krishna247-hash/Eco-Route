@@ -44,12 +44,20 @@ export interface TripInput {
   accommodation_tier_filter?: AccommodationTierFilter | null;
 }
 
+export interface CostBreakdown {
+  transport_usd: number;
+  accommodation_usd: number;
+  activity_usd: number;
+  total_usd: number;
+}
+
 export interface CandidateItinerary {
   id: string;
   transport_mode: string;
   accommodation_tier: string;
   carbon: CarbonBreakdown;
   cost_usd: number;
+  cost_breakdown: CostBreakdown;
   duration_hrs: number;
   preference_score: number;
 }
@@ -116,6 +124,11 @@ export interface ChatTripContext {
   recommended_accommodation_tier?: string | null;
   recommended_carbon_kg?: number | null;
   recommended_cost_usd?: number | null;
+  /** Rupee-formatted cost string (e.g. "₹28,500"), computed client-side
+   * from the live USD-INR rate so the chatbot's spoken figure matches
+   * what the user sees on the page -- never re-derived server-side from
+   * a rate this service doesn't have. */
+  recommended_cost_inr_formatted?: string | null;
 }
 
 export interface ChatRequest {

@@ -103,7 +103,8 @@ them:
 | Location search | [Photon](https://photon.komoot.io) | Autocomplete in the planner and map |
 | Reverse geocoding | [Nominatim](https://nominatim.openstreetmap.org) | Naming a map click |
 | Routing | [OSRM](http://router.project-osrm.org) | Real distance/duration between two points |
-| Hotel identities | [Overpass API](https://overpass-api.de) | Real hotel names/locations near a destination (pricing/availability is still generated demo data — see `hotel.service.ts`'s module comment) |
+| Hotel identities | [Overpass API](https://overpass-api.de) | Real hotel names/locations near a destination (pricing/availability is still generated demo data — see `hotel.service.ts`'s module comment). Where an OSM venue carries a `wikimedia_commons=File:...` tag, its real photo is also surfaced via [Wikimedia Commons](https://commons.wikimedia.org)' `Special:FilePath` — never a stock photo for venues without one. |
+| Currency conversion | [Frankfurter](https://frankfurter.dev) (ECB-sourced) | Live USD→INR rate for displaying costs in ₹ — see `currency.service.ts` |
 
 **These are shared community demo instances, not an SLA product** —
 fine for development and a project like this, but not meant for

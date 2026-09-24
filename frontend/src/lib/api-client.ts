@@ -148,6 +148,7 @@ export interface ChatTripContext {
   recommended_accommodation_tier?: string | null;
   recommended_carbon_kg?: number | null;
   recommended_cost_usd?: number | null;
+  recommended_cost_inr_formatted?: string | null;
 }
 
 export async function sendChatMessage(

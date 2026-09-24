@@ -101,6 +101,45 @@ describe("OsmDemoHotelProvider", () => {
     assert.match(result.disclaimer, /placeholder names/);
   });
 
+  it("surfaces a real Wikimedia Commons photo when the OSM venue has a wikimedia_commons=File:... tag", async () => {
+    mockOverpassOnce([
+      {
+        type: "node",
+        id: 1,
+        lat: 35.0117,
+        lon: 135.7681,
+        tags: { tourism: "hotel", name: "Photographed Real Hotel", wikimedia_commons: "File:Kyoto Hotel Facade.jpg" },
+      },
+    ]);
+    const result = await provider.search({ ...BASE_QUERY, destinationLat: 35.0116, destinationLon: 135.7681 });
+    const photographed = result.hotels.find((h) => h.name === "Photographed Real Hotel");
+    assert.ok(photographed);
+    assert.equal(
+      photographed!.photoUrl,
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Kyoto%20Hotel%20Facade.jpg?width=800",
+    );
+  });
+
+  it("never fabricates a photo for a venue with no wikimedia_commons=File:... tag", async () => {
+    mockOverpassOnce([
+      { type: "node", id: 1, lat: 35.0117, lon: 135.7681, tags: { tourism: "hotel", name: "Unphotographed Hotel" } },
+      {
+        type: "node",
+        id: 2,
+        lat: 35.012,
+        lon: 135.769,
+        tags: { tourism: "hotel", name: "Category-Tagged Hotel", wikimedia_commons: "Category:Some Hotel" },
+      },
+    ]);
+    const result = await provider.search({ ...BASE_QUERY, destinationLat: 35.0116, destinationLon: 135.7681 });
+    const unphotographed = result.hotels.find((h) => h.name === "Unphotographed Hotel");
+    const categoryTagged = result.hotels.find((h) => h.name === "Category-Tagged Hotel");
+    assert.ok(unphotographed);
+    assert.ok(categoryTagged);
+    assert.equal(unphotographed!.photoUrl, undefined);
+    assert.equal(categoryTagged!.photoUrl, undefined);
+  });
+
   it("still never fabricates live pricing/availability even for real venues", async () => {
     mockOverpassOnce([
       { type: "node", id: 1, lat: 35.0117, lon: 135.7681, tags: { tourism: "hotel", name: "Real Priced Hotel" } },

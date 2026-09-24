@@ -18,12 +18,20 @@ class TripInput(BaseModel):
     accommodation_tier_filter: Literal["budget", "standard", "eco"] | None = None
 
 
+class CostBreakdown(BaseModel):
+    transport_usd: float
+    accommodation_usd: float
+    activity_usd: float
+    total_usd: float
+
+
 class CandidateItinerary(BaseModel):
     id: str
     transport_mode: str
     accommodation_tier: str
     carbon: CarbonEstimateResponse
     cost_usd: float
+    cost_breakdown: CostBreakdown
     duration_hrs: float
     preference_score: float
 
