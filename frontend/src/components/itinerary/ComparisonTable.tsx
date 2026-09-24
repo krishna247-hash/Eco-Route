@@ -77,7 +77,9 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
                   </div>
                 </div>
 
-                <p className="text-xs leading-relaxed text-slate-600">{option.explanation}</p>
+                <p className="text-xs leading-relaxed text-slate-600">
+                  {option.explanation || t('itinerary.explanationUnavailable')}
+                </p>
 
                 <div className="mt-4 flex items-center gap-2">
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">

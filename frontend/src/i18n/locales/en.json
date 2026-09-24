@@ -119,7 +119,8 @@
     "totalCost": "Total cost",
     "duration": "Duration",
     "hotelsNear": "Hotels near {destination}",
-    "accommodationSuffix": "{tier} accommodation"
+    "accommodationSuffix": "{tier} accommodation",
+    "explanationUnavailable": "Plain-language explanation unavailable right now — the numbers above are real and computed, just not narrated."
   },
   "itineraryTimeline": {
     "heading": "Day-by-day plan",

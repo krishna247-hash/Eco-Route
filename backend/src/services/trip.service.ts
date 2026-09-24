@@ -69,19 +69,6 @@ export async function planTrip(userId: string, input: PlanTripInput) {
 
   const destinationId = await findOrCreateDestination(input.destination);
 
-  const trip = await prisma.trip.create({
-    data: {
-      userId,
-      destinationId,
-      origin: input.origin,
-      startDate,
-      endDate,
-      travelers: input.travelers,
-      budgetUsd: input.budgetUsd,
-      preference: PREFERENCE_MAP[input.preference],
-    },
-  });
-
   const candidates = await aiService.generateItineraries({
     origin: input.origin,
     destination: input.destination.name,
@@ -97,9 +84,23 @@ export async function planTrip(userId: string, input: PlanTripInput) {
 
   // Pipeline step per the build guide (generate -> optimize -> recommend);
   // recommend() re-runs optimization internally, so its response is what
-  // gets persisted below.
+  // gets persisted below. Only once this succeeds do we persist anything,
+  // so a failed plan never leaves a trip behind with no itineraries.
   await aiService.optimizeCandidates(candidates);
   const { baseline_id: baselineId, recommendations } = await aiService.recommend(candidates);
+
+  const trip = await prisma.trip.create({
+    data: {
+      userId,
+      destinationId,
+      origin: input.origin,
+      startDate,
+      endDate,
+      travelers: input.travelers,
+      budgetUsd: input.budgetUsd,
+      preference: PREFERENCE_MAP[input.preference],
+    },
+  });
 
   const itineraries = await Promise.all(
     recommendations.map(async (option) => {
