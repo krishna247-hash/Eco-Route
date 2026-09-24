@@ -82,6 +82,13 @@ export async function listMyTrips(): Promise<TripSummary[]> {
   return data.trips;
 }
 
+export async function deleteTrip(tripId: string): Promise<void> {
+  const response = await authedFetch(`/api/v1/trips/${tripId}`, { method: 'DELETE' });
+  if (!response.ok) {
+    throw new Error(`Failed to delete trip (${response.status})`);
+  }
+}
+
 export async function getStoredTrip(tripId: string): Promise<StoredTripResult | null> {
   const response = await authedFetch(`/api/v1/trips/${tripId}`);
   if (response.status === 404) return null;

@@ -160,3 +160,62 @@ describe("GET /api/v1/trips/:id", () => {
     assert.equal(response.status, 404);
   });
 });
+
+describe("DELETE /api/v1/trips/:id", () => {
+  it("rejects an unauthenticated request with 401", async () => {
+    const response = await request(app).delete(`/api/v1/trips/${tripId}`);
+    assert.equal(response.status, 401);
+  });
+
+  it("refuses to delete a trip belonging to someone else, with 404", async () => {
+    const response = await request(app)
+      .delete(`/api/v1/trips/${tripId}`)
+      .set("Authorization", `Bearer ${tokenFor(otherUserId)}`);
+    assert.equal(response.status, 404);
+    const stillThere = await prisma.trip.findUnique({ where: { id: tripId } });
+    assert.ok(stillThere);
+  });
+
+  it("deletes a trip the owner actually owns, cascading its itineraries", async () => {
+    const destination = await prisma.destination.upsert({
+      where: { name_country: { name: "MyTrips-Delete-Test-City", country: "Testland" } },
+      update: {},
+      create: { name: "MyTrips-Delete-Test-City", country: "Testland", latitude: 2, longitude: 2 },
+    });
+    const disposableTrip = await prisma.trip.create({
+      data: {
+        userId: ownerUserId,
+        destinationId: destination.id,
+        origin: "Disposable Origin",
+        startDate: new Date("2027-09-01"),
+        endDate: new Date("2027-09-03"),
+        travelers: 1,
+      },
+    });
+    const disposableItinerary = await prisma.itinerary.create({
+      data: {
+        tripId: disposableTrip.id,
+        label: "BALANCED",
+        totalCarbonKgCo2e: 10,
+        totalCostUsd: 100,
+        totalDurationHrs: 2,
+        preferenceScore: 0.5,
+      },
+    });
+
+    const response = await request(app)
+      .delete(`/api/v1/trips/${disposableTrip.id}`)
+      .set("Authorization", `Bearer ${tokenFor(ownerUserId)}`);
+    assert.equal(response.status, 204);
+
+    assert.equal(await prisma.trip.findUnique({ where: { id: disposableTrip.id } }), null);
+    assert.equal(await prisma.itinerary.findUnique({ where: { id: disposableItinerary.id } }), null);
+  });
+
+  it("returns 404 for a nonexistent trip", async () => {
+    const response = await request(app)
+      .delete("/api/v1/trips/does-not-exist")
+      .set("Authorization", `Bearer ${tokenFor(ownerUserId)}`);
+    assert.equal(response.status, 404);
+  });
+});

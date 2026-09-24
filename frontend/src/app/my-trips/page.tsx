@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Leaf, MapPin, Plane, Users } from 'lucide-react';
-import { listMyTrips, type TripSummary } from '@/lib/api-client';
+import { Calendar, Leaf, Loader2, MapPin, Plane, Trash2, Users } from 'lucide-react';
+import { deleteTrip, listMyTrips, type TripSummary } from '@/lib/api-client';
 import { useCurrency } from '@/lib/CurrencyProvider';
 import { useI18n } from '@/i18n/I18nProvider';
 
@@ -17,6 +17,20 @@ export default function MyTripsPage() {
   const { formatInr } = useCurrency();
   const [trips, setTrips] = useState<TripSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(tripId: string) {
+    if (!window.confirm(t('myTrips.confirmDelete'))) return;
+    setDeletingId(tripId);
+    try {
+      await deleteTrip(tripId);
+      setTrips((prev) => prev?.filter((trip) => trip.tripId !== tripId) ?? prev);
+    } catch {
+      setError(t('myTrips.deleteError'));
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -62,32 +76,46 @@ export default function MyTripsPage() {
       {trips !== null && trips.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2">
           {trips.map((trip) => (
-            <Link
+            <div
               key={trip.tripId}
-              href={`/itinerary/${trip.tripId}`}
-              className="card-hover rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-emerald-300"
+              className="card-hover relative rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-emerald-300"
             >
-              <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
-                <MapPin className="h-3.5 w-3.5 text-emerald-600" />
-                {trip.origin} <span className="text-slate-400">→</span> {trip.destinationName}
-              </p>
-              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
-                <Calendar className="h-3 w-3" />
-                {formatDateRange(trip.startDate, trip.endDate, locale)}
-                <span className="mx-1">·</span>
-                <Users className="h-3 w-3" />
-                {trip.travelers}
-              </p>
-              {trip.recommended && (
-                <div className="mt-3 flex items-center gap-3 text-xs text-slate-600">
-                  <span className="flex items-center gap-1">
-                    <Leaf className="h-3 w-3 text-emerald-600" />
-                    {trip.recommended.totalCarbonKgCo2e.toFixed(0)} kg CO2e
-                  </span>
-                  <span>{formatInr(trip.recommended.totalCostUsd)}</span>
-                </div>
-              )}
-            </Link>
+              <button
+                type="button"
+                onClick={() => handleDelete(trip.tripId)}
+                disabled={deletingId === trip.tripId}
+                aria-label={t('myTrips.delete')}
+                className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              >
+                {deletingId === trip.tripId ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+              <Link href={`/itinerary/${trip.tripId}`} className="block pr-8">
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                  <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+                  {trip.origin} <span className="text-slate-400">→</span> {trip.destinationName}
+                </p>
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                  <Calendar className="h-3 w-3" />
+                  {formatDateRange(trip.startDate, trip.endDate, locale)}
+                  <span className="mx-1">·</span>
+                  <Users className="h-3 w-3" />
+                  {trip.travelers}
+                </p>
+                {trip.recommended && (
+                  <div className="mt-3 flex items-center gap-3 text-xs text-slate-600">
+                    <span className="flex items-center gap-1">
+                      <Leaf className="h-3 w-3 text-emerald-600" />
+                      {trip.recommended.totalCarbonKgCo2e.toFixed(0)} kg CO2e
+                    </span>
+                    <span>{formatInr(trip.recommended.totalCostUsd)}</span>
+                  </div>
+                )}
+              </Link>
+            </div>
           ))}
         </div>
       )}

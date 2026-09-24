@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authMiddleware, type AuthedRequest } from "../middleware/auth.middleware";
 import { AppError } from "../utils/AppError";
-import { getTrip, listUserTrips, planTrip, type DestinationInput } from "../services/trip.service";
+import { deleteTrip, getTrip, listUserTrips, planTrip, type DestinationInput } from "../services/trip.service";
 import type {
   AccommodationTierFilter,
   TransportModeFilter,
@@ -111,6 +111,18 @@ tripsRouter.get("/:id", authMiddleware, async (req: AuthedRequest, res, next) =>
       throw new AppError(404, "Trip not found");
     }
     res.status(200).json(trip);
+  } catch (err) {
+    next(err);
+  }
+});
+
+tripsRouter.delete("/:id", authMiddleware, async (req: AuthedRequest, res, next) => {
+  try {
+    const deleted = await deleteTrip(req.params.id, req.userId as string);
+    if (!deleted) {
+      throw new AppError(404, "Trip not found");
+    }
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

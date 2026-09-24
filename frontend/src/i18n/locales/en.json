@@ -208,6 +208,17 @@
     "notFound": "We couldn't find that hotel -- results are only kept for your current search session.",
     "backToSearch": "Back to hotel search"
   },
+  "weather": {
+    "heading": "Weather",
+    "clearSky": "Clear sky",
+    "partlyCloudy": "Partly cloudy",
+    "overcast": "Overcast",
+    "fog": "Foggy",
+    "drizzle": "Drizzle",
+    "rain": "Rain",
+    "snow": "Snow",
+    "thunderstorm": "Thunderstorm"
+  },
   "destinations": {
     "title": "Where do you want to go?",
     "subtitle": "A few places to start exploring -- or search any destination from the trip planner."
@@ -266,7 +277,10 @@
     "loading": "Loading your trips…",
     "loadError": "Could not load your trips. Please try again.",
     "empty": "You haven't planned a trip yet.",
-    "planFirst": "Plan your first trip"
+    "planFirst": "Plan your first trip",
+    "delete": "Delete trip",
+    "confirmDelete": "Delete this trip? This can't be undone.",
+    "deleteError": "Could not delete that trip. Please try again."
   },
   "assistantPage": {
     "title": "Your Travel Assistant",

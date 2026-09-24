@@ -246,3 +246,12 @@ export async function listUserTrips(userId: string): Promise<TripSummary[]> {
     };
   });
 }
+
+/** Deletes a trip the user actually owns (itineraries/recommendations/
+ * bookings cascade via the schema's onDelete: Cascade). Returns false
+ * for a trip that doesn't exist or belongs to someone else, rather than
+ * throwing, so the route can honestly 404 either way. */
+export async function deleteTrip(tripId: string, userId: string): Promise<boolean> {
+  const result = await prisma.trip.deleteMany({ where: { id: tripId, userId } });
+  return result.count > 0;
+}

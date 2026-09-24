@@ -20,6 +20,26 @@ export async function getDestinationSummary(name: string): Promise<DestinationSu
   return data.summary;
 }
 
+export interface DailyForecast {
+  date: string;
+  maxC: number;
+  minC: number;
+  weatherCode: number;
+}
+
+export interface WeatherSnapshot {
+  currentTempC: number;
+  currentWeatherCode: number;
+  daily: DailyForecast[];
+}
+
+export async function getWeather(lat: number, lon: number): Promise<WeatherSnapshot | null> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/destinations/weather?lat=${lat}&lon=${lon}`);
+  if (!response.ok) return null;
+  const data = (await response.json()) as { weather: WeatherSnapshot | null };
+  return data.weather;
+}
+
 export async function getFamousPlaces(name: string, lat: number, lon: number): Promise<Attraction[]> {
   const response = await fetch(
     `${API_BASE_URL}/api/v1/destinations/${encodeURIComponent(name)}/attractions?lat=${lat}&lon=${lon}`,

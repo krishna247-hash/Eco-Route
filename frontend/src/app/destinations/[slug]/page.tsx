@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { Compass, Hotel, ImageOff, MapPin } from 'lucide-react';
 import { findDestinationBySlug } from '@/lib/destinations.data';
 import { getDestinationSummary, getFamousPlaces, type Attraction, type DestinationSummary } from '@/lib/destinationApi';
+import { WeatherWidget } from '@/components/destinations/WeatherWidget';
 import { useI18n } from '@/i18n/I18nProvider';
 
 export default function DestinationDetailPage() {
@@ -64,34 +65,42 @@ export default function DestinationDetailPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-10">
-        {summary === undefined && <p className="text-sm text-slate-400">{t('destinationDetail.loading')}</p>}
-        {summary && <p className="max-w-3xl leading-relaxed text-slate-700">{summary.extract}</p>}
-        {summary?.wikipediaUrl && (
-          <a
-            href={summary.wikipediaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block text-xs text-slate-400 underline underline-offset-4 hover:text-slate-600"
-          >
-            {t('destinationDetail.readMore')}
-          </a>
-        )}
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="md:col-span-2">
+            {summary === undefined && <p className="text-sm text-slate-400">{t('destinationDetail.loading')}</p>}
+            {summary && <p className="leading-relaxed text-slate-700">{summary.extract}</p>}
+            {summary?.wikipediaUrl && (
+              <a
+                href={summary.wikipediaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-block text-xs text-slate-400 underline underline-offset-4 hover:text-slate-600"
+              >
+                {t('destinationDetail.readMore')}
+              </a>
+            )}
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href={planHref}
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-          >
-            <Compass className="h-4 w-4" />
-            {t('destinationDetail.planTrip')}
-          </Link>
-          <Link
-            href={`/hotels?destinationName=${encodeURIComponent(destination.name)}&destinationCountry=${encodeURIComponent(destination.country)}&destinationLat=${destination.latitude}&destinationLon=${destination.longitude}`}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-          >
-            <Hotel className="h-4 w-4" />
-            {t('destinationDetail.viewHotels')}
-          </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href={planHref}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+              >
+                <Compass className="h-4 w-4" />
+                {t('destinationDetail.planTrip')}
+              </Link>
+              <Link
+                href={`/hotels?destinationName=${encodeURIComponent(destination.name)}&destinationCountry=${encodeURIComponent(destination.country)}&destinationLat=${destination.latitude}&destinationLon=${destination.longitude}`}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                <Hotel className="h-4 w-4" />
+                {t('destinationDetail.viewHotels')}
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <WeatherWidget latitude={destination.latitude} longitude={destination.longitude} />
+          </div>
         </div>
 
         <div className="mt-12">
