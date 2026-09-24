@@ -39,7 +39,7 @@ export default function ItineraryPage() {
 
   if (trip === null) {
     return (
-      <main className="mx-auto max-w-2xl animate-fade-in px-4 py-16 text-center">
+      <main className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-slate-600">{t('itinerary.notFoundMessage')}</p>
         <Link href="/plan" className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4">
           {t('itinerary.planNewTrip')}
@@ -68,7 +68,7 @@ export default function ItineraryPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-6 flex animate-fade-up items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">
             {request.origin} <span className="text-slate-400">→</span> {request.destination.name}
@@ -88,7 +88,7 @@ export default function ItineraryPage() {
         </Link>
       </div>
 
-      <div className="mb-4 flex animate-fade-up flex-wrap gap-2 [animation-delay:60ms]">
+      <div className="mb-4 flex flex-wrap gap-2">
         <span className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
           <TransportIcon className="h-3.5 w-3.5 text-emerald-600" />
           {t(`planForm.transportOptions.${recommended.transportMode}`)}
@@ -100,12 +100,8 @@ export default function ItineraryPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">
-        {STAT_CARDS.map((stat, i) => (
-          <div
-            key={stat.key}
-            className="card-hover glass-card animate-scale-in rounded-xl p-4 text-center"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
+        {STAT_CARDS.map((stat) => (
+          <div key={stat.key} className="card-hover glass-card rounded-xl p-4 text-center">
             <stat.icon className={`mx-auto mb-1.5 h-4 w-4 ${stat.accent}`} />
             <p className="text-xs uppercase tracking-wide text-slate-500">{stat.label}</p>
             <p className="text-xl font-semibold text-slate-900">{statValues[stat.key]}</p>
@@ -113,25 +109,21 @@ export default function ItineraryPage() {
         ))}
       </div>
 
-      <p className="mb-6 animate-fade-up rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-4 text-sm leading-relaxed text-emerald-900 [animation-delay:150ms]">
+      <p className="mb-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-900">
         {recommended.explanation}
       </p>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="animate-fade-up [animation-delay:200ms]">
-          <ItineraryTimeline
-            option={recommended}
-            origin={request.origin}
-            destinationName={request.destination.name}
-            nights={nights}
-          />
-        </div>
-        <div className="animate-fade-up [animation-delay:280ms]">
-          <CarbonDashboard carbon={recommended.carbon} />
-        </div>
+        <ItineraryTimeline
+          option={recommended}
+          origin={request.origin}
+          destinationName={request.destination.name}
+          nights={nights}
+        />
+        <CarbonDashboard carbon={recommended.carbon} />
       </div>
 
-      <div className="mt-8 animate-fade-up [animation-delay:340ms]">
+      <div className="mt-8">
         <h2 className="mb-3 flex items-center gap-1.5 text-lg font-semibold text-slate-900">
           <Hotel className="h-4 w-4 text-emerald-600" />
           {t('itinerary.hotelsNear', { destination: request.destination.name })}

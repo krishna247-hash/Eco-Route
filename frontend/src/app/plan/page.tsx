@@ -30,8 +30,8 @@ function PlanPageInner() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      <div className="mb-8 animate-fade-up text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white shadow-md shadow-emerald-500/20">
+      <div className="mb-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white">
           <Compass className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-semibold text-slate-900">{t('plan.title')}</h1>
@@ -39,13 +39,13 @@ function PlanPageInner() {
       </div>
 
       {error && (
-        <p className="mb-4 flex animate-fade-in items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">
+        <p className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">
           <AlertCircle className="mt-0.5 h-4 w-4 flex-none" />
           {error}
         </p>
       )}
 
-      <div className="glass-card animate-scale-in rounded-2xl p-6 shadow-sm sm:p-8 [animation-delay:100ms]">
+      <div className="glass-card rounded-2xl p-6 shadow-sm sm:p-8">
         <PreferenceForm onSubmit={handleSubmit} submitting={submitting} />
       </div>
     </main>

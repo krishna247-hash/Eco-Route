@@ -182,7 +182,7 @@ export default function MapPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <div className="mb-6 flex animate-fade-up items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900">
             <Compass className="h-5 w-5 text-emerald-600" />
@@ -192,7 +192,7 @@ export default function MapPage() {
         </div>
       </div>
 
-      <div className="mb-4 grid animate-fade-up gap-3 sm:grid-cols-2 [animation-delay:60ms]">
+      <div className="mb-4 grid gap-3 sm:grid-cols-2">
         <div>
           <label className="text-sm font-medium text-slate-700">{t('map.fromLabel')}</label>
           <LocationAutocomplete placeholder={t('map.fromPlaceholder')} onSelect={selectFrom} />
@@ -230,7 +230,7 @@ export default function MapPage() {
         </p>
       )}
 
-      <div className="mb-4 h-[420px] animate-scale-in overflow-hidden rounded-xl border border-slate-200 shadow-sm [animation-delay:120ms]">
+      <div className="mb-4 h-[420px] overflow-hidden rounded-xl border border-slate-200 shadow-sm">
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
 
@@ -239,7 +239,7 @@ export default function MapPage() {
           type="button"
           onClick={handleShowRoute}
           disabled={!from || !to || routing}
-          className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Navigation className="h-3.5 w-3.5" />
           {routing ? t('map.routing') : t('map.showRoute')}

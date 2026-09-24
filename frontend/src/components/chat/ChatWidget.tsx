@@ -94,7 +94,7 @@ export function ChatWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('chat.openLabel')}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-600/30 transition-transform hover:scale-105"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-600/20 transition-colors hover:bg-emerald-700"
       >
         <MessageCircle className="h-6 w-6" />
       </button>
@@ -103,7 +103,7 @@ export function ChatWidget() {
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex h-[520px] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-white">
+      <div className="flex items-center justify-between bg-emerald-600 px-4 py-3 text-white">
         <div>
           <p className="flex items-center gap-1.5 text-sm font-semibold">
             <Leaf className="h-4 w-4" />

@@ -17,11 +17,11 @@ const LABEL_ICON: Record<ItineraryLabel, typeof Leaf> = {
 };
 
 const LABEL_STYLE: Record<ItineraryLabel, { accent: string; bg: string }> = {
-  LOW_CARBON: { accent: 'text-emerald-600', bg: 'from-emerald-500 to-emerald-600' },
-  BALANCED: { accent: 'text-teal-600', bg: 'from-teal-500 to-teal-600' },
-  LOW_COST: { accent: 'text-amber-600', bg: 'from-amber-500 to-amber-600' },
-  TIME_EFFICIENT: { accent: 'text-sky-600', bg: 'from-sky-500 to-sky-600' },
-  PREFERENCE_FOCUSED: { accent: 'text-violet-600', bg: 'from-violet-500 to-violet-600' },
+  LOW_CARBON: { accent: 'text-emerald-600', bg: 'bg-emerald-600' },
+  BALANCED: { accent: 'text-teal-600', bg: 'bg-teal-600' },
+  LOW_COST: { accent: 'text-amber-600', bg: 'bg-amber-600' },
+  TIME_EFFICIENT: { accent: 'text-sky-600', bg: 'bg-sky-600' },
+  PREFERENCE_FOCUSED: { accent: 'text-violet-600', bg: 'bg-violet-600' },
 };
 
 const TRANSPORT_ICON: Record<string, typeof Car> = {
@@ -37,21 +37,17 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
   return (
     <div className="space-y-10">
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {options.map((option, i) => {
+        {options.map((option) => {
           const Icon = LABEL_ICON[option.label] ?? LABEL_ICON.BALANCED;
           const style = LABEL_STYLE[option.label] ?? LABEL_STYLE.BALANCED;
           const text = t(`labels.${option.label}`);
           const TransportIcon = TRANSPORT_ICON[option.transportMode] ?? Car;
           return (
-            <div
-              key={option.id}
-              className="card-hover glass-card animate-scale-in overflow-hidden rounded-2xl"
-              style={{ animationDelay: `${i * 90}ms` }}
-            >
-              <div className={`h-1.5 w-full bg-gradient-to-r ${style.bg}`} />
+            <div key={option.id} className="card-hover glass-card overflow-hidden rounded-2xl">
+              <div className={`h-1.5 w-full ${style.bg}`} />
               <div className="p-5">
                 <div className="mb-4 flex items-center gap-2">
-                  <span className={`flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${style.bg} text-white shadow-sm`}>
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${style.bg} text-white`}>
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
@@ -84,7 +80,7 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
                 <div className="mt-4 flex items-center gap-2">
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className={`h-full rounded-full bg-gradient-to-r ${style.bg}`}
+                      className={`h-full rounded-full ${style.bg}`}
                       style={{ width: `${Math.round(option.preferenceScore * 100)}%` }}
                     />
                   </div>
@@ -98,7 +94,7 @@ export function ComparisonTable({ options }: ComparisonTableProps) {
         })}
       </div>
 
-      <div className="glass-card animate-fade-up overflow-x-auto rounded-2xl p-2 [animation-delay:200ms]">
+      <div className="glass-card overflow-x-auto rounded-2xl p-2">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
             <tr>

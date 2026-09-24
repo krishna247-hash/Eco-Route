@@ -38,13 +38,9 @@ export function ItineraryTimeline({ option, origin, destinationName, nights }: I
         {t('itineraryTimeline.heading')}
       </h2>
       <ol className="space-y-3">
-        {days.map((d, i) => (
-          <li
-            key={d.day}
-            className="flex animate-fade-up gap-3 text-sm"
-            style={{ animationDelay: `${i * 70}ms` }}
-          >
-            <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-xs font-semibold text-white shadow-sm">
+        {days.map((d) => (
+          <li key={d.day} className="flex gap-3 text-sm">
+            <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-600 text-xs font-semibold text-white">
               {d.day}
             </span>
             <span className="pt-0.5 text-slate-700">{d.description}</span>

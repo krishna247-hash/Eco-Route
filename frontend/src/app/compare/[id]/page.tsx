@@ -24,7 +24,7 @@ export default function ComparePage() {
 
   if (trip === null) {
     return (
-      <main className="mx-auto max-w-2xl animate-fade-in px-4 py-16 text-center">
+      <main className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-slate-600">{t('itinerary.notFoundMessage')}</p>
         <Link href="/plan" className="mt-4 inline-block font-medium text-emerald-700 underline underline-offset-4">
           {t('itinerary.planNewTrip')}
@@ -36,10 +36,8 @@ export default function ComparePage() {
   const { request, response } = trip;
 
   return (
-    <main className="relative mx-auto max-w-6xl px-4 py-10">
-      <div className="bg-grid pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_60%_40%_at_50%_0%,#000_60%,transparent_100%)]" />
-
-      <div className="mb-8 flex animate-fade-up items-center justify-between">
+    <main className="mx-auto max-w-6xl px-4 py-10">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">{t('compare.label')}</p>
           <h1 className="text-2xl font-semibold text-slate-900">

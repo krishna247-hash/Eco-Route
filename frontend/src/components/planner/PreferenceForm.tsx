@@ -288,9 +288,9 @@ export function PreferenceForm({ onSubmit, submitting }: PreferenceFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="group relative w-full overflow-hidden rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-600/25 disabled:translate-y-0 disabled:opacity-70"
+        className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-70"
       >
-        <span className="relative flex items-center justify-center gap-2">
+        <span className="flex items-center justify-center gap-2">
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
           {submitting ? t('planForm.submitting') : t('planForm.submit')}
         </span>
