@@ -169,7 +169,8 @@
     "saving": "सहेजा जा रहा है…",
     "couldNotSaveReservation": "वह आरक्षण सहेजा नहीं जा सका। कृपया पुनः प्रयास करें।",
     "couldNotCancelReservation": "वह आरक्षण रद्द नहीं किया जा सका। कृपया पुनः प्रयास करें।",
-    "couldNotStartCheckout": "चेकआउट शुरू नहीं हो सका। कृपया पुनः प्रयास करें।"
+    "couldNotStartCheckout": "चेकआउट शुरू नहीं हो सका। कृपया पुनः प्रयास करें।",
+    "viewOnMakeMyTrip": "MakeMyTrip पर लाइव कीमतें और बुकिंग"
   },
   "chat": {
     "assistantName": "इकोरूट सहायक",

@@ -169,7 +169,8 @@
     "saving": "Saving…",
     "couldNotSaveReservation": "Could not save that reservation. Please try again.",
     "couldNotCancelReservation": "Could not cancel that reservation. Please try again.",
-    "couldNotStartCheckout": "Could not start checkout. Please try again."
+    "couldNotStartCheckout": "Could not start checkout. Please try again.",
+    "viewOnMakeMyTrip": "Live prices & booking on MakeMyTrip"
   },
   "chat": {
     "assistantName": "EcoRoute Assistant",

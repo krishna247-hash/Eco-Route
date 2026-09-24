@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Check, CreditCard, Info, Loader2, MapPin, Star, X } from 'lucide-react';
+import { AlertTriangle, Check, CreditCard, ExternalLink, Info, Loader2, MapPin, Star, X } from 'lucide-react';
 import { searchHotels, type AccommodationTier, type HotelListing } from '@/lib/hotelApi';
 import {
   cancelBooking,
@@ -14,6 +14,7 @@ import {
 } from '@/lib/api-client';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useCurrency } from '@/lib/CurrencyProvider';
+import { makeMyTripSearchUrl } from '@/lib/makeMyTripLink';
 
 interface HotelListProps {
   tripId: string;
@@ -272,6 +273,15 @@ export function HotelList({
                     {isPending ? t('hotels.saving') : t('hotels.reserveDemo')}
                   </button>
                 )}
+                <a
+                  href={makeMyTripSearchUrl(hotel.name, destinationName)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-xs font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  {t('hotels.viewOnMakeMyTrip')}
+                </a>
               </div>
             </div>
           );
