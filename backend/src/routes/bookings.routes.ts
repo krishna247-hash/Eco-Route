@@ -8,7 +8,7 @@ export const bookingsRouter = Router();
 const TIERS = ["budget", "standard", "eco"] as const;
 
 const DISCLAIMER =
-  "This saves your selection to your EcoRoute trip. It is not a live hotel reservation -- no real hotel provider is connected, so no actual room has been booked.";
+  "This saves your selection to your EcoRoute trip. It is not a live hotel reservation — no real hotel provider is connected, so no actual room has been booked.";
 
 async function loadOwnedTrip(tripId: unknown, userId: string) {
   if (typeof tripId !== "string" || !tripId) {

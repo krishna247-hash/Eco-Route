@@ -24,7 +24,12 @@ import { wikimediaPhotoUrl } from "./wikimedia.util";
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const OVERPASS_RADIUS_METERS = 5000;
-const OVERPASS_TIMEOUT_MS = 7000;
+// The shared public Overpass instance can genuinely take a while under
+// load -- this must stay comfortably above the query's own [timeout:15]
+// budget below, or the client aborts before the server even finishes,
+// falling back to "temporarily unreachable" (placeholder names, no
+// photos) far more than necessary.
+const OVERPASS_TIMEOUT_MS = 20000;
 const HOTELS_PER_TIER = 4;
 
 export type AccommodationTier = "budget" | "standard" | "eco";
@@ -170,7 +175,7 @@ function syntheticIdentities(destinationName: string, tier: AccommodationTier): 
 }
 
 const DEMO_DISCLAIMER =
-  "These are demo listings for demonstration purposes only -- not real hotel inventory, pricing, or availability. No live hotel provider is connected.";
+  "These are demo listings for demonstration purposes only — not real hotel inventory, pricing, or availability. No live hotel provider is connected.";
 
 export class DemoHotelProvider implements HotelProvider {
   async search(query: HotelSearchQuery): Promise<HotelSearchResult> {
@@ -198,7 +203,7 @@ interface OverpassElement {
 }
 
 async function fetchOsmHotelIdentities(lat: number, lon: number): Promise<HotelIdentity[]> {
-  const query = `[out:json][timeout:8];(node["tourism"~"^(hotel|hostel|guest_house)$"]["name"](around:${OVERPASS_RADIUS_METERS},${lat},${lon});way["tourism"~"^(hotel|hostel|guest_house)$"]["name"](around:${OVERPASS_RADIUS_METERS},${lat},${lon}););out center ${HOTELS_PER_TIER * 6};`;
+  const query = `[out:json][timeout:15];(node["tourism"~"^(hotel|hostel|guest_house)$"]["name"](around:${OVERPASS_RADIUS_METERS},${lat},${lon});way["tourism"~"^(hotel|hostel|guest_house)$"]["name"](around:${OVERPASS_RADIUS_METERS},${lat},${lon}););out center ${HOTELS_PER_TIER * 6};`;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), OVERPASS_TIMEOUT_MS);
@@ -297,9 +302,9 @@ export class OsmDemoHotelProvider implements HotelProvider {
     const disclaimer = ranShort
       ? "Hotel names and locations are sourced from OpenStreetMap contributors where a nearby listing was found; " +
         "remaining slots use placeholder names. Pricing, ratings, and availability are always estimated demo data " +
-        "-- no live hotel provider is connected."
+        "— no live hotel provider is connected."
       : "Hotel names and locations are sourced from OpenStreetMap contributors. Pricing, ratings, and availability " +
-        "are still estimated demo data -- no live hotel provider is connected.";
+        "are still estimated demo data — no live hotel provider is connected.";
 
     return { isDemoData: true, source: "osm", disclaimer, hotels };
   }

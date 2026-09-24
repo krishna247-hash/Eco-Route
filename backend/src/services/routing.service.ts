@@ -55,7 +55,7 @@ function straightLineFallback(origin: RoutePoint, destination: RoutePoint, reaso
     ok: false,
     source: "fallback-straight-line",
     note:
-      "Live routing is currently unavailable -- this is a straight-line (great-circle) " +
+      "Live routing is currently unavailable — this is a straight-line (great-circle) " +
       `distance estimate, not a real road route. ${reason}`,
     routes: [
       {

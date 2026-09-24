@@ -15,6 +15,11 @@ import { wikimediaPhotoUrl } from "./wikimedia.util";
 const WIKIPEDIA_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 const REQUEST_TIMEOUT_MS = 7000;
+// The shared public Overpass instance can genuinely take a while under
+// load -- this must stay comfortably above the query's own [timeout:15]
+// budget below, or the client aborts before the server even finishes,
+// falling back to "temporarily unreachable" far more than necessary.
+const OVERPASS_TIMEOUT_MS = 20000;
 const SUMMARY_CACHE_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days -- summaries/photos rarely change
 const ATTRACTIONS_CACHE_TTL_SECONDS = 60 * 60 * 24 * 7;
 const ATTRACTIONS_RADIUS_METERS = 8000;
@@ -33,9 +38,9 @@ export interface Attraction {
   distanceFromCenterKm: number;
 }
 
-async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
+async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = REQUEST_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...init, signal: controller.signal });
   } finally {
@@ -105,14 +110,14 @@ export async function getFamousPlaces(lat: number, lon: number): Promise<Attract
   const cached = await getCached<Attraction[]>(cacheKey);
   if (cached) return cached;
 
-  const query = `[out:json][timeout:8];(node["tourism"~"^(attraction|museum|viewpoint|artwork|gallery)$"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon});way["tourism"~"^(attraction|museum|viewpoint|artwork|gallery)$"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon});node["historic"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon}););out center ${MAX_ATTRACTIONS * 4};`;
+  const query = `[out:json][timeout:15];(node["tourism"~"^(attraction|museum|viewpoint|artwork|gallery)$"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon});way["tourism"~"^(attraction|museum|viewpoint|artwork|gallery)$"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon});node["historic"]["name"](around:${ATTRACTIONS_RADIUS_METERS},${lat},${lon}););out center ${MAX_ATTRACTIONS * 4};`;
 
   try {
-    const response = await fetchWithTimeout(OVERPASS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: query,
-    });
+    const response = await fetchWithTimeout(
+      OVERPASS_URL,
+      { method: "POST", headers: { "Content-Type": "text/plain" }, body: query },
+      OVERPASS_TIMEOUT_MS,
+    );
     if (!response.ok) return [];
 
     const data = (await response.json()) as { elements?: OverpassElement[] };

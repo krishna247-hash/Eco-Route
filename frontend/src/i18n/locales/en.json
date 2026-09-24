@@ -30,15 +30,15 @@
     "features": [
       {
         "title": "Find the right balance",
-        "description": "Every itinerary is weighed across carbon, cost, time, and what matters most to you -- in one pass."
+        "description": "Every itinerary is weighed across carbon, cost, time, and what matters most to you — in one pass."
       },
       {
         "title": "Understand your footprint",
-        "description": "Built from published emission-factor data, not guesses -- every number is traceable."
+        "description": "Built from published emission-factor data, not guesses — every number is traceable."
       },
       {
         "title": "Why we recommend this",
-        "description": "Each option comes with a short, plain-language reason -- no jargon required."
+        "description": "Each option comes with a short, plain-language reason — no jargon required."
       }
     ]
   },
@@ -205,7 +205,7 @@
     "searchPrompt": "Search a destination above to see places to stay."
   },
   "hotelDetail": {
-    "notFound": "We couldn't find that hotel -- results are only kept for your current search session.",
+    "notFound": "We couldn't find that hotel — results are only kept for your current search session.",
     "backToSearch": "Back to hotel search"
   },
   "weather": {
@@ -221,10 +221,10 @@
   },
   "destinations": {
     "title": "Where do you want to go?",
-    "subtitle": "A few places to start exploring -- or search any destination from the trip planner."
+    "subtitle": "A few places to start exploring — or search any destination from the trip planner."
   },
   "destinationDetail": {
-    "notFound": "We don't have this destination in our discovery list yet -- you can still plan a trip to it from the planner.",
+    "notFound": "We don't have this destination in our discovery list yet — you can still plan a trip to it from the planner.",
     "backToDestinations": "Back to destinations",
     "loading": "Loading…",
     "readMore": "Read more on Wikipedia",
@@ -236,10 +236,10 @@
   },
   "about": {
     "title": "Travel that weighs what matters",
-    "intro": "EcoRoute plans journeys that balance the experiences you want against the time, cost, and environmental footprint they carry -- so the trade-offs are visible, not hidden.",
+    "intro": "EcoRoute plans journeys that balance the experiences you want against the time, cost, and environmental footprint they carry — so the trade-offs are visible, not hidden.",
     "plan": {
       "title": "Plan with intention",
-      "description": "Tell us where, when, and what matters most to you -- we'll shape a set of real itinerary options around it."
+      "description": "Tell us where, when, and what matters most to you — we'll shape a set of real itinerary options around it."
     },
     "footprint": {
       "title": "Understand your footprint",
@@ -251,7 +251,7 @@
     },
     "honest": {
       "title": "Never fabricated",
-      "description": "Where live data genuinely exists -- routes, locations, hotel identities, exchange rates -- we use it. Where it doesn't, we say so plainly instead of guessing."
+      "description": "Where live data genuinely exists — routes, locations, hotel identities, exchange rates — we use it. Where it doesn't, we say so plainly instead of guessing."
     },
     "methodology": {
       "title": "How EcoRoute works",
@@ -262,7 +262,7 @@
       },
       "emissions": {
         "term": "Real emission factors",
-        "definition": "Carbon estimates are built from published DEFRA 2023 and ICAO emission factors, not guesses -- every figure is traceable to its source."
+        "definition": "Carbon estimates are built from published DEFRA 2023 and ICAO emission factors, not guesses — every figure is traceable to its source."
       },
       "explanations": {
         "term": "Plain-language explanations",
