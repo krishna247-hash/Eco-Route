@@ -1,0 +1,23 @@
+{
+  "name": "ecoroute-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EcoRoute REST API — Express + MongoDB multi-objective carbon optimizer",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.1",
+    "morgan": "^1.10.0"
+  }
+}

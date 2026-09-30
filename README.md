@@ -1,12 +1,13 @@
 # EcoRoute — AI-Driven Sustainable Travel Planning Platform
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg?style=flat&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248.svg?style=flat&logo=mongodb)](https://www.mongodb.com/)
+[![Express](https://img.shields.io/badge/Express-4-000000.svg?style=flat&logo=express)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg?style=flat&logo=react)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933.svg?style=flat&logo=node.js)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **Engineering Design and Innovation (EDI) Group Project**  
-> An AI-powered full-stack sustainable travel planning platform integrating multi-objective carbon optimization, explainable AI, dynamic carbon footprint analytics, and interactive route mapping.
+> An AI-powered MERN-stack (MongoDB, Express, React, Node.js) sustainable travel planning platform integrating multi-objective carbon optimization, explainable AI, dynamic carbon footprint analytics, and interactive route mapping.
 
 ---
 
@@ -21,48 +22,39 @@ The rapid growth of the global tourism industry has significantly increased tran
 
 ---
 
-## 🛠️ System Architecture
+## 🛠️ System Architecture (MERN)
 
 ```mermaid
 graph TD
-    User([Traveler / Researcher]) <--> NextUI[Next.js 14 App Router UI]
-    
-    subgraph Frontend [Presentation Layer]
-        Planner[Trip Parameter Wizard]
-        Dashboard[Dynamic Carbon Dashboard & Recharts]
-        Timeline[Day-by-Day Itinerary & Activity Timeline]
-        Map[Leaflet / OpenStreetMap Visualizer]
-        XAI[Explainable AI Rationale Drawer]
+    User([Traveler]) <--> React[React 18 + Vite SPA]
+    subgraph Client [client/ — Presentation Layer]
+        Planner[Trip Planner & Pareto Plan Cards]
+        Dash[Carbon Dashboard — Recharts]
+        Map[Leaflet / OpenStreetMap Route Map]
+        XAI[Explainable AI Rationale]
+        Pass[Saved Trips & Digital Travel Pass]
     end
-
-    NextUI --> Planner
-    NextUI --> Dashboard
-    NextUI --> Timeline
-    NextUI --> Map
-    NextUI --> XAI
-
-    subgraph Backend [Full-Stack Next.js API Layer]
-        APIOptimize[/api/plan]
-        APICarbon[/api/carbon]
-        
-        CarbonEngine[DEFRA 2023 & ICAO Factor Engine]
-        ParetoEngine[Pareto Optimal Frontier Solver]
-        XAIEngine[Explainable AI Decision Explainer]
-        DataCatalog[Geo, Transit & Certified Eco-Hotels DB]
+    React --> Planner & Dash & Map & XAI & Pass
+    subgraph Server [server/ — Node.js + Express REST API]
+        API[REST API: plan, carbon, trips]
+        Opt[Pareto Optimizer + Knee Point]
+        Carbon[DEFRA 2023 / ICAO Factor Engine]
+        Explain[XAI Explanation Engine]
     end
-
-    Planner --> APIOptimize
-    APIOptimize --> ParetoEngine
-    APIOptimize --> CarbonEngine
-    APIOptimize --> XAIEngine
-    CarbonEngine --> DataCatalog
-
-    subgraph Companion [Academic Research Microservice]
-        PythonService[Python FastAPI / NSGA-II Genetic Algorithm]
-    end
-
-    ParetoEngine -.->|Academic Companion| PythonService
+    Planner --> API
+    Pass --> API
+    API --> Opt --> Carbon
+    Opt --> Explain
+    API --> Mongo[(MongoDB — Mongoose Trip model)]
+    Opt -.->|academic companion| Py[Python NSGA-II]
 ```
+
+| Layer | Tech |
+| :--- | :--- |
+| **M**ongoDB | Saved trips & travel passes (`server/src/models/Trip.js`, Mongoose). Falls back to an in-memory store if MongoDB is unreachable. |
+| **E**xpress | REST API in `server/src/routes/api.js` |
+| **R**eact | SPA in `client/` (Vite, React Router, Recharts, Leaflet, plain HTML/CSS/JS) |
+| **N**ode.js | Optimizer, carbon calculator and XAI engine in `server/src/lib/` |
 
 ---
 
@@ -102,83 +94,78 @@ A candidate $A$ Pareto-dominates candidate $B$ ($A \prec B$) if $A$ is no worse 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-- **Node.js**: v18.0.0 or higher (v20+ recommended)
-- **npm**: v9.0.0 or higher
-- **Python**: 3.9+ (optional, for academic NSGA-II script)
+- **Node.js** 18+ (20+ recommended)
+- **MongoDB** 6+ running locally, or a MongoDB Atlas connection string (optional — without it the API uses an in-memory store)
+- **Python** 3.9+ (optional, for the NSGA-II companion)
 
-### 1. Running the Next.js Web Application
+### 1. Install
 ```bash
-# 1. Install dependencies (already completed)
-npm install
+npm run install:all
+cp server/.env.example server/.env   # then edit MONGO_URI if needed
+```
 
-# 2. Run local development server
+### 2. Develop (API on :5000, React on :5173 with /api proxied)
+```bash
 npm run dev
 ```
+Open http://localhost:5173
 
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
-
-### 2. Available Routes
-- `http://localhost:3000/` — Landing page with live carbon abatement interactive calculator & architecture highlights.
-- `http://localhost:3000/planner` — Multi-step trip planner wizard with interactive Pareto candidate selection, dynamic carbon metrics, Leaflet route map, day-by-day itinerary, and Explainable AI cards.
-- `http://localhost:3000/dashboard` — Dynamic Carbon Dashboard with parametric simulation, modal comparisons, and standardized DEFRA factors reference table.
-- `http://localhost:3000/api/plan` — REST API endpoint for multi-objective optimization.
-- `http://localhost:3000/api/carbon` — REST API endpoint for carbon footprint calculations.
-
-### 3. Running the Python NSGA-II Genetic Optimizer (Optional Academic Companion)
+### 3. Production build (Express serves the built React app)
 ```bash
-# Test the standalone genetic algorithm in terminal
-python3 python-optimizer/nsga2_optimizer.py
+npm run build
+npm start          # http://localhost:5000
+```
 
-# Or launch the FastAPI microservice
-python3 -m pip install -r python-optimizer/requirements.txt
-python3 python-optimizer/main.py
+### 4. Tests
+```bash
+npm test
+```
+
+### REST API
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/api/health` | Status and active database (`mongodb` / `in-memory`) |
+| GET | `/api/cities?q=` | City catalogue |
+| GET | `/api/factors` | DEFRA / ICAO emission factors |
+| POST | `/api/plan` | Multi-objective optimisation → 3 Pareto plans + all candidates |
+| POST | `/api/carbon` | Stand-alone footprint calculator |
+| GET / POST | `/api/trips` | List / save trips (returns a `passCode`) |
+| GET / PATCH / DELETE | `/api/trips/:idOrPassCode` | Read, switch plan, or delete a trip |
+
+Example:
+```bash
+curl -X POST localhost:5000/api/plan -H 'Content-Type: application/json' \
+  -d '{"origin":"paris","destination":"amsterdam","startDate":"2026-10-10","endDate":"2026-10-13","travelers":2,"budget":1200,"priority":"eco","preferredModes":["train","flight"]}'
+```
+
+### Python NSGA-II Optimizer (optional)
+```bash
+python3 python-optimizer/nsga2_optimizer.py
 ```
 
 ---
 
-## 📂 Project Directory Structure
+## 📂 Project Structure
 
 ```
-├── README.md                      # Comprehensive documentation & research specs
-├── package.json                   # Next.js, React, Leaflet, Recharts, Tailwind
-├── tsconfig.json                  # Strict TypeScript configuration
-├── tailwind.config.ts             # Tailwind CSS theme & eco palettes
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx             # Global Navbar, Footer, and Metadata
-│   │   ├── globals.css            # Tailwind & Leaflet styles
-│   │   ├── page.tsx               # Landing Page + Live Carbon Slider
-│   │   ├── planner/page.tsx       # Trip Planning Wizard & Results Page
-│   │   ├── dashboard/page.tsx     # Dynamic Carbon Analytics Dashboard
-│   │   └── api/
-│   │       ├── plan/route.ts      # Multi-objective optimization API
-│   │       └── carbon/route.ts    # Standalone carbon calculation API
-│   ├── components/
-│   │   ├── planner/TripWizard.tsx # Trip parameters configuration form
-│   │   ├── itinerary/
-│   │   │   ├── PlanComparisonCard.tsx # Pareto candidate selector
-│   │   │   └── DayTimeline.tsx    # Day-by-day activities & transit schedule
-│   │   ├── dashboard/CarbonCharts.tsx # Recharts Bar & Donut visualizers
-│   │   ├── maps/LeafletMap.tsx    # Interactive OpenStreetMap route visualizer
-│   │   └── xai/ExplainabilityCard.tsx # Explainable AI rationale card
-│   └── lib/
-│       ├── types.ts               # Core TypeScript domain models
-│       ├── carbon/
-│       │   ├── factors.ts         # DEFRA 2023 & ICAO factor database
-│       │   └── calculator.ts      # Haversine distance & carbon algorithms
-│       ├── optimizer/
-│       │   └── pareto.ts          # Pareto dominance & Knee-point extraction
-│       ├── ai/
-│       │   └── explain.ts         # Transparent Explainable AI engine
-│       └── data/
-│           └── destinations.ts    # Cities, transit links, eco-hotels & POIs
-└── python-optimizer/              # Companion research microservice
-    ├── nsga2_optimizer.py         # NSGA-II Genetic Algorithm
-    ├── main.py                    # FastAPI server
-    └── requirements.txt
+├── package.json            # root scripts (install:all, dev, build, start, test)
+├── server/                 # Node.js + Express + MongoDB
+│   ├── src/index.js        # entry point (connects DB, starts server)
+│   ├── src/app.js          # Express app, serves client/dist in production
+│   ├── src/db.js           # Mongoose connection
+│   ├── src/store.js        # Trip repository (MongoDB or in-memory fallback)
+│   ├── src/models/Trip.js  # Mongoose schema
+│   ├── src/routes/api.js   # REST endpoints
+│   ├── src/lib/            # factors, calculator, destinations, optimizer, explain
+│   └── test/               # node:test API tests
+├── client/                 # React + Vite (JavaScript, plain CSS)
+│   ├── index.html
+│   └── src/
+│       ├── pages/          # Home, Planner, Dashboard, MyTrips, TripPass
+│       ├── components/     # TripForm, PlanCards, CarbonCharts, RouteMap, DayTimeline, ExplainCard, TravelPass
+│       ├── api/client.js   # fetch wrapper
+│       └── index.css       # design system
+└── python-optimizer/       # NSGA-II academic companion
 ```
 
 ---
@@ -197,6 +184,8 @@ python3 python-optimizer/main.py
    - Conversion to **Annual Tree Sequestration Equivalents** (21.77 kg $\text{CO}_2$/year per mature tree).
 4. **Interactive Route Mapping**:
    - Clean OpenStreetMap CartoDB rendering with Leaflet.
+6. **Saved Trips & Digital Travel Pass (MongoDB)**:
+   - Save any plan, get a unique pass code, switch plans later, look passes up by code.
    - Dynamic route polyline styling based on mode (solid emerald for train, dashed rose for flight, cyan for EV).
    - Interactive popups for origins, destinations, and scheduled attractions.
 5. **Explainable AI (XAI)**:
